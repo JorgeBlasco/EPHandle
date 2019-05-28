@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "700341727820",
+    "firebase_url": "https://ep-handle.firebaseio.com",
+    "project_id": "ep-handle",
+    "storage_bucket": "ep-handle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:700341727820:android:77c94cd4af5706c0",
+        "android_client_info": {
+          "package_name": "com.jorgeblascoespinosa.ep_handle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "700341727820-9ttqj2q18jok3ch32hv2im010aav568p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jorgeblascoespinosa.ep_handle",
+            "certificate_hash": "815f2073705173263f9810c0c9c5fc6af10c7dd3"
+          }
+        },
+        {
+          "client_id": "700341727820-gji1q7f9jvelvif2mcoins2cc2c4auch.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTlTbo8JzMqJnVTkruopo2mi8CQ8k0FcQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "700341727820-gji1q7f9jvelvif2mcoins2cc2c4auch.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
