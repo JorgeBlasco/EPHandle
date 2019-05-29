@@ -3,6 +3,7 @@ package com.jorgeblascoespinosa.ep_handle;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,16 +15,13 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,9 +30,10 @@ public class MainActivity extends AppCompatActivity {
     TextView etiqueta, datos, bt;
     BluetoothAdapter mBluetoothAdapter;
     boolean btCompatible = true;
-    private BroadcastReceiver mReceiver;
+    private BroadcastReceiver mBluetoothStateReceiver, mDeviceFoundReceiver;
     Set<BluetoothDevice> dispositivosSincronizados;
-
+    BluetoothDevice dispositvo;
+    UUID uuid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,19 +42,37 @@ public class MainActivity extends AppCompatActivity {
         etiqueta = findViewById(R.id.etiqueta);
         datos = findViewById(R.id.datos);
         bt = findViewById(R.id.bluetooth);
+        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        //Coger los dispositivos sincronizados
         dispositivosSincronizados = mBluetoothAdapter.getBondedDevices();
-        //Filtrar los dispositivos sincronizados para ver solo los que tengan ue ver con la app.
+        //Filtrar los dispositivos sincronizados para ver solo los que tengan que ver con la app.
         for (BluetoothDevice device : dispositivosSincronizados){
             if (device.getName().contains("EP-HANDLE")){
-                
+
             }
         }
+
+        mDeviceFoundReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                //Al encontrar un dispositivo
+                if (BluetoothDevice.ACTION_FOUND.equals(action)){
+                    //Recuperamos el dispositivo del intent
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    dispositvo = device;
+                    //Añadimos el nombre y la dirección al array adapter.
+                   // mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                }
+            }
+        };
 
         //TODO Hacer mi propio broadcast receiver que sólo recoja acciones de bluetooth
         //http://www.proyectosimio.com/es/programacion-android-broadcastreceiver/
         //https://www.youtube.com/watch?v=sXs7S048eIo
-        mReceiver = new BroadcastReceiver() {
+        mBluetoothStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
@@ -80,12 +97,14 @@ public class MainActivity extends AppCompatActivity {
         //Para saber si el dispositivo es compatible con bluetooth
         if (mBluetoothAdapter == null) {
             btCompatible = false;
-            //TODO no permitimos lanzar la actividad de iniciar sesión.
+            //TODO no permitimos lanzar la actividad de empezar la sesión de terapia.
         }
         else {
-            // Mantenerse a la escucha de eventos de cambio de estado de bluetooth
+            // Registrar los eventos de cambio de estado de bluetooth y dispositivo encontrado
             IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-            registerReceiver(mReceiver, filter);
+            registerReceiver(mBluetoothStateReceiver, filter);
+            IntentFilter filter2 = new IntentFilter((BluetoothDevice.ACTION_FOUND));
+            registerReceiver(mDeviceFoundReceiver,filter2); //TODO unregister during onDestroy & onPause
         }
 
         //Para lanzar el intent  que muestra un dialogo de activación del bluetooth (sin salir de la aplicacion)
@@ -93,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
+
 
         //Insertar datos en la base de datos
        /* Map<String, Object> user = new HashMap<>();
