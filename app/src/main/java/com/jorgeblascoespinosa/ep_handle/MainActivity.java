@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -31,9 +32,9 @@ public class MainActivity extends AppCompatActivity {
     BluetoothAdapter mBluetoothAdapter;
     boolean btCompatible = true;
     private BroadcastReceiver mBluetoothStateReceiver, mDeviceFoundReceiver;
-    Set<BluetoothDevice> dispositivosSincronizados;
+    Set<BluetoothDevice> dispSincronizados;
     BluetoothDevice dispositvo;
-    UUID uuid;
+    UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,17 +43,18 @@ public class MainActivity extends AppCompatActivity {
         etiqueta = findViewById(R.id.etiqueta);
         datos = findViewById(R.id.datos);
         bt = findViewById(R.id.bluetooth);
-        uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         //Coger los dispositivos sincronizados
-        dispositivosSincronizados = mBluetoothAdapter.getBondedDevices();
+        dispSincronizados = mBluetoothAdapter.getBondedDevices();
         //Filtrar los dispositivos sincronizados para ver solo los que tengan que ver con la app.
-        for (BluetoothDevice device : dispositivosSincronizados){
+        for (BluetoothDevice device : dispSincronizados){
             if (device.getName().contains("EP-HANDLE")){
 
             }
         }
+        //Iniciar detección de dispositivos:
+        mBluetoothAdapter.startDiscovery(); //Es asincrónico
 
         mDeviceFoundReceiver = new BroadcastReceiver() {
             @Override
@@ -69,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        //TODO Hacer mi propio broadcast receiver que sólo recoja acciones de bluetooth
+
         //http://www.proyectosimio.com/es/programacion-android-broadcastreceiver/
         //https://www.youtube.com/watch?v=sXs7S048eIo
         mBluetoothStateReceiver = new BroadcastReceiver() {
@@ -93,6 +95,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
+        //Crear el socket
+        BluetoothSocket socket;
+        try {
+            socket = dispositvo.createRfcommSocketToServiceRecord(uuid);
+            //Detener la detección de dispositivos
+            socket.connect(); //Caduca despues de 12 segundos.
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //Para saber si el dispositivo es compatible con bluetooth
         if (mBluetoothAdapter == null) {
