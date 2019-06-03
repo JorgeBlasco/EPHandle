@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_item_mi_terapeuta"
+        android:title="Mi Terapeuta" />
+    <item
+        android:id="@+id/menu_item_dispositivo"
+        android:title="Dispositivo" />
+    <item
+        android:id="@+id/menu_item_config"
+        android:title="Configuración" />
+    <item
+        android:id="@+id/menu_item_acercade"
+        android:title="Acerca de..." />
+    <item
+        android:id="@+id/menu_item_salir"
+        android:title="Salir" />
+</menu>

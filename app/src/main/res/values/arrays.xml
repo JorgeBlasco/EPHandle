@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="session_types">
+        <item>Tipo de Sesión</item>
+        <item>Comida</item>
+        <item>Cepillado</item>
+        <item>Dibujo</item>
+        <item>Otro</item>
+    </string-array>
+</resources>
