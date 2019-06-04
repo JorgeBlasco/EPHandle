@@ -1,4 +1,5 @@
 <resources>
+    <string name="default_client_id">700341727820-tgio1e98t8dbjrbktgmomsb59tpr2clk.apps.googleusercontent.com</string>
     <string name="app_name">EP-Handle</string>
     <string name="title_activity_login">Sign in</string>
     <string name="prompt_email">Email</string>
@@ -14,4 +15,24 @@
     <string name="bluetooth_state_connected">Conectado</string>
     <string name="bluetooth_state_turning_on">Encendiendo</string>
     <string name="bluetooth_state_error">Error de bluetooth</string>
+    <string name="about_register_date_not_found">No registrado</string>
+    <string name="login_title">EP-Handle</string>
+    <string name="login_input_email">Email</string>
+    <string name="login_input_pass">Password</string>
+    <string name="login_button">Iniciar Sesión</string>
+    <string name="login_button_g">Iniciar sesión con Google</string>
+    <string name="login_legal">EP-Handle 2019 v1.0</string>
+    <string name="main_title">¡Bienvenid@ de nuevo!</string>
+    <string name="main_tag1">Estado Bluetooth:</string>
+    <string name="main_tag2">Nombre dispositivo:</string>
+    <string name="main_bluetooth_state_default">No conectado</string>
+    <string name="main_device_name_default">EP-0000</string>
+    <string name="main_tag3">Dia:</string>
+    <string name="main_tag4">Sesiones Realizadas:</string>
+    <string name="default_number">0</string>
+    <string name="main_tag5">Objetivo:</string>
+    <string name="main_lets_start">¿Empezamos?</string>
+    <string name="main_button">Empezar</string>
+    <string name="main_set_time">Fijar tiempo</string>
+    <string name="main_minutes">min.</string>
 </resources>

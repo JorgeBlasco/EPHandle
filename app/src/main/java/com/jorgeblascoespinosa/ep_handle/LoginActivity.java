@@ -44,6 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         mAuth = FirebaseAuth.getInstance();
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_client_id))
                 .requestEmail()
                 .build();
         bn_login = findViewById(R.id.btn_login);
@@ -121,6 +122,9 @@ public class LoginActivity extends AppCompatActivity {
                 try{
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     firebaseAuthWithGoogle(account);
+                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                    intent.putExtra(USER_EXTRA,mAuth.getCurrentUser());
+                    startActivity(intent);
                 } catch (ApiException e) {
                     Log.w(TAG,"El inicio de sesión de google ha fallado");
                 }

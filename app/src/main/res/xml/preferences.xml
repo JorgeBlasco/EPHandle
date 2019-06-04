@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Avisos">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="vibracion"
+            android:title="Vibración" />
+        <SeekBarPreference android:title="Intensidad"></SeekBarPreference>
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="sonido"
+            android:title="Sonido" />
+        <SeekBarPreference android:title="Volumen"></SeekBarPreference>
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="luz"
+            android:title="Iluminación" />
+        <SeekBarPreference android:title="Intensidad"></SeekBarPreference>
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="Notificaciones">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="notificaciones"
+            android:title="Notificaciones en la bandeja" />
+    </PreferenceCategory>
+</PreferenceScreen>

@@ -25,14 +25,13 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
-        android:text="TextView"
+        android:text="@string/main_title"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
-        tools:text="¡Bienvenid@ de nuevo!" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"/>
 
-    <view
+    <View
         android:id="@+id/view2"
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -50,41 +49,37 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:text="TextView"
+        android:text="@string/main_tag1"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view2"
-        tools:text="Estado Bluetooth:" />
+        app:layout_constraintTop_toBottomOf="@+id/view2" />
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="@string/main_tag2"
         app:layout_constraintStart_toStartOf="@+id/textView2"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
-        tools:text="Nombre dispositivo:" />
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/tv_bluetooth_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="64dp"
-        android:text="TextView"
+        android:text="@string/main_bluetooth_state_default"
         app:layout_constraintStart_toEndOf="@+id/textView2"
-        app:layout_constraintTop_toTopOf="@+id/textView2"
-        tools:text="Conectado" />
+        app:layout_constraintTop_toTopOf="@+id/textView2" />
 
     <TextView
         android:id="@+id/tv_device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="@string/main_device_name_default"
         app:layout_constraintStart_toStartOf="@+id/tv_bluetooth_state"
-        app:layout_constraintTop_toTopOf="@+id/textView3"
-        tools:text="EP-0a2e" />
+        app:layout_constraintTop_toTopOf="@+id/textView3" />
 
-    <view
+    <View
         android:id="@+id/view3"
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -102,62 +97,56 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:text="TextView"
+        android:text="@string/main_tag3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view3"
-        tools:text="Dia:" />
+        app:layout_constraintTop_toBottomOf="@+id/view3" />
 
     <TextView
         android:id="@+id/tv_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="TextView"
+        android:text="@string/default_number"
         app:layout_constraintBottom_toBottomOf="@+id/textView"
-        app:layout_constraintStart_toEndOf="@+id/textView"
-        tools:text="23" />
+        app:layout_constraintStart_toEndOf="@+id/textView"/>
 
     <TextView
         android:id="@+id/textView8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="@string/main_tag4"
         app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:text="Sesiones Realizadas:" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"/>
 
     <TextView
         android:id="@+id/tv_total_sessions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="TextView"
+        android:text="@string/default_number"
         app:layout_constraintBottom_toBottomOf="@+id/textView8"
-        app:layout_constraintStart_toEndOf="@+id/textView8"
-        tools:text="12" />
+        app:layout_constraintStart_toEndOf="@+id/textView8" />
 
     <TextView
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="@string/main_tag5"
         app:layout_constraintStart_toStartOf="@+id/textView8"
-        app:layout_constraintTop_toBottomOf="@+id/textView8"
-        tools:text="Objetivo:" />
+        app:layout_constraintTop_toBottomOf="@+id/textView8" />
 
     <TextView
         android:id="@+id/tv_session_objective"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:text="TextView"
+        android:text="@string/default_number"
         app:layout_constraintBottom_toBottomOf="@+id/textView10"
-        app:layout_constraintStart_toEndOf="@+id/textView10"
-        tools:text="50" />
+        app:layout_constraintStart_toEndOf="@+id/textView10" />
 
-    <view
+    <View
         android:id="@+id/view4"
         android:layout_width="0dp"
         android:layout_height="1dp"
@@ -177,12 +166,11 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="8dp"
-        android:text="TextView"
+        android:text="@string/main_lets_start"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view4"
-        tools:text="¿Empezamos?" />
+        app:layout_constraintTop_toBottomOf="@+id/view4" />
 
     <Spinner
         android:id="@+id/sp_session_type"
@@ -202,12 +190,11 @@
         android:layout_marginEnd="24dp"
         android:drawableStart="@android:drawable/ic_media_play"
         android:drawableTint="@android:color/holo_green_dark"
-        android:text="Button"
+        android:text="@string/main_button"
         app:layout_constraintBottom_toBottomOf="@+id/sp_session_type"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/sp_session_type"
-        app:layout_constraintTop_toTopOf="@+id/sp_session_type"
-        tools:text="Empezar" />
+        app:layout_constraintTop_toTopOf="@+id/sp_session_type" />
 
     <CheckBox
         android:id="@+id/cb_set_time"
@@ -215,10 +202,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
-        android:text="CheckBox"
+        android:text="@string/main_set_time"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sp_session_type"
-        tools:text="Fijar tiempo" />
+        app:layout_constraintTop_toBottomOf="@+id/sp_session_type" />
 
     <EditText
         android:id="@+id/et_setted_time"
@@ -228,6 +214,7 @@
         android:ems="10"
         android:enabled="false"
         android:inputType="number"
+        android:autofillHints="@string/default_number"
         app:layout_constraintBottom_toBottomOf="@+id/cb_set_time"
         app:layout_constraintStart_toEndOf="@+id/cb_set_time" />
 
@@ -236,9 +223,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:text="TextView"
+        android:text="@string/main_minutes"
         app:layout_constraintBottom_toBottomOf="@+id/et_setted_time"
-        app:layout_constraintStart_toEndOf="@+id/et_setted_time"
-        tools:text="min." />
+        app:layout_constraintStart_toEndOf="@+id/et_setted_time" />
 
 </android.support.constraint.ConstraintLayout>

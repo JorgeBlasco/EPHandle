@@ -15,16 +15,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "700341727820-9ttqj2q18jok3ch32hv2im010aav568p.apps.googleusercontent.com",
+          "client_id": "700341727820-tgio1e98t8dbjrbktgmomsb59tpr2clk.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.jorgeblascoespinosa.ep_handle",
             "certificate_hash": "815f2073705173263f9810c0c9c5fc6af10c7dd3"
           }
-        },
-        {
-          "client_id": "700341727820-gji1q7f9jvelvif2mcoins2cc2c4auch.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [

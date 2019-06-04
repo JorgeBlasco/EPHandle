@@ -8,6 +8,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -29,12 +31,18 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_ENABLE_BT = 1;
+    public static final String PREF_FECHA_REGISTRO = "fecha_registro";
+    public static final String EP_HANDLE_PREFS = "EP-Handle-prefs";
+    SharedPreferences prefs;
     Toolbar mToolbar;
     FirebaseFirestore db;
     BluetoothAdapter mBluetoothAdapter;
@@ -53,6 +61,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        prefs = getSharedPreferences(EP_HANDLE_PREFS, Context.MODE_PRIVATE);
+        //Guardamos la fecha de registro en las preferencias (sólo la primera vez que se inicia la app)
+        if (prefs.getString(PREF_FECHA_REGISTRO,null) == null) {
+            SharedPreferences.Editor editor = prefs.edit();
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            editor.putString(PREF_FECHA_REGISTRO, df.format(c));
+            editor.apply();
+        }
         setContentView(R.layout.activity_main);
         relacionarViews();
         setSupportActionBar(mToolbar);
@@ -60,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         //Obtener el adaptador bluetooth
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter==null)
+        if (mBluetoothAdapter == null)
             btCompatible = false;
         else
             configBluetooth();
@@ -72,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
                     //TODO abrir actividad de sesión, recogiendo el tipo de sesión, el tiempo fijado (si hay)
                 }
             });
-
 
 
         actualizaUI();
@@ -137,23 +153,25 @@ public class MainActivity extends AppCompatActivity {
         //Iniciar detección de dispositivos:
         mBluetoothAdapter.startDiscovery(); //Es asincrónico
                 */
-        db.collection("users").whereEqualTo("primero","Ada").get()
+        db.collection("users").whereEqualTo("primero", "Ada").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful())
-                            for (QueryDocumentSnapshot document : task.getResult()){
-                               // datos.setText((String)document.get("primero"));
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                // datos.setText((String)document.get("primero"));
                             }
                     }
                 });
-     //   bt.setText("Hay bluetooth? " + (btCompatible?"Si":"No"));
+        //   bt.setText("Hay bluetooth? " + (btCompatible?"Si":"No"));
 
     }
 
     private void actualizaUI() {
-        if (!btCompatible)
+        if (!btCompatible){
             tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_not_connected));
+            tv_bluetoothState.setTextColor(Color.RED);
+        }
         //TODO recojo los datos de la base de datos y los muestro en la pantalla
     }
 
@@ -223,27 +241,28 @@ public class MainActivity extends AppCompatActivity {
     //Manejo del menú
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_principal,menu);
+        getMenuInflater().inflate(R.menu.menu_principal, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch (id){
+        switch (id) {
             case R.id.menu_item_mi_terapeuta:
                 //TODO caso terapeuta
                 break;
             case R.id.menu_item_dispositivo:
                 //TODO caso dispositivo
-                if (!btCompatible){
+                if (!btCompatible) {
                     //TODO mostrar diálogo "Este dispositivo no es compatible con bluetooth, por favor, inténtalo con otro dispositivo"
-                }
-                else{
+                } else {
                     //TODO iniciar actividad de selección de dispositivo
                 }
                 break;
             case R.id.menu_item_config:
+                startActivity(new Intent(MainActivity.this,
+                        PreferenciasActivity.class));
                 //TODO caso configuración
                 break;
             case R.id.menu_item_acercade:
@@ -260,14 +279,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //Qué actividad es la que retorna?
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_ENABLE_BT:
                 //Si el bluetooth ha sido activado
-                if (resultCode == Activity.RESULT_OK){
+                if (resultCode == Activity.RESULT_OK) {
 
                 }
                 //El bluetooth no ha sido activado o el dialogo se ha cancelado
-                else if (resultCode == Activity.RESULT_CANCELED){
+                else if (resultCode == Activity.RESULT_CANCELED) {
 
                 }
                 break;
