@@ -59,4 +59,5 @@
     <string name="bn_about_return">Volver</string>
     <string name="tv_about_device">Dispositivo asociado:</string>
     <string name="logo_content_description">Logo de EP-Handle</string>
+    <string name="bn_reset">Restablecer</string>
 </resources>
