@@ -75,7 +75,7 @@
         android:id="@+id/tv_device_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_device_name_default"
+        android:text="@string/main_bluetooth_state_default"
         app:layout_constraintStart_toStartOf="@+id/tv_bluetooth_state"
         app:layout_constraintTop_toTopOf="@+id/textView3" />
 

@@ -3,17 +3,20 @@
 
     <item
         android:id="@+id/menu_item_mi_terapeuta"
-        android:title="Mi Terapeuta" />
+        android:title="@string/menu_item_therapist" />
     <item
         android:id="@+id/menu_item_dispositivo"
-        android:title="Dispositivo" />
+        android:title="@string/menu_item_device" />
     <item
         android:id="@+id/menu_item_config"
-        android:title="Configuración" />
+        android:title="@string/menu_item_config" />
     <item
         android:id="@+id/menu_item_acercade"
-        android:title="Acerca de..." />
+        android:title="@string/menu_item_about" />
+    <item
+        android:id="@+id/menu_item_cerrar_sesion"
+        android:title="@string/menu_item_logout" />
     <item
         android:id="@+id/menu_item_salir"
-        android:title="Salir" />
+        android:title="@string/menu_item_exit" />
 </menu>

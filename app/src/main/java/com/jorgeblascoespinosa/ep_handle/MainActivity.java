@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -20,12 +21,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -38,14 +42,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final int REQUEST_ENABLE_BT = 1;
-    public static final String PREF_FECHA_REGISTRO = "fecha_registro";
-    public static final String EP_HANDLE_PREFS = "EP-Handle-prefs";
     SharedPreferences prefs;
     Toolbar mToolbar;
     FirebaseFirestore db;
     BluetoothAdapter mBluetoothAdapter;
+    int backButtonCount = 0;
     boolean btCompatible = true;
     private BroadcastReceiver mBluetoothStateReceiver, mDeviceFoundReceiver;
     //Set<BluetoothDevice> dispSincronizados;
@@ -61,17 +62,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        prefs = getSharedPreferences(EP_HANDLE_PREFS, Context.MODE_PRIVATE);
+        prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         //Guardamos la fecha de registro en las preferencias (sólo la primera vez que se inicia la app)
-        if (prefs.getString(PREF_FECHA_REGISTRO,null) == null) {
+        if (prefs.getString(Constantes.PREF_FECHA_REGISTRO,null) == null) {
             SharedPreferences.Editor editor = prefs.edit();
             Date c = Calendar.getInstance().getTime();
             SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-            editor.putString(PREF_FECHA_REGISTRO, df.format(c));
+            editor.putString(Constantes.PREF_FECHA_REGISTRO, df.format(c));
             editor.apply();
         }
         setContentView(R.layout.activity_main);
         relacionarViews();
+        cb_setTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                et_settedTime.setEnabled(isChecked);
+            }
+        });
         setSupportActionBar(mToolbar);
         //Obtener la referencia a la base de datos Firebase
         db = FirebaseFirestore.getInstance();
@@ -86,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
             bn_start.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (sp_sessionType.getSelectedItem().toString().equals(getResources().getStringArray(R.array.session_types)[0])){
+                        Toast.makeText(MainActivity.this, "Selecciona un tipo de sesión.", Toast.LENGTH_SHORT).show();
+                    }
                     //TODO abrir actividad de sesión, recogiendo el tipo de sesión, el tiempo fijado (si hay)
                 }
             });
@@ -262,14 +272,20 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_item_config:
                 startActivity(new Intent(MainActivity.this,
-                        PreferenciasActivity.class));
-                //TODO caso configuración
+                        PreferencesActivity.class));
                 break;
             case R.id.menu_item_acercade:
-                //TODO caso acerca de
+                startActivity(new Intent(MainActivity.this,AcercaDeActivity.class));
+                break;
+            case R.id.menu_item_cerrar_sesion:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(MainActivity.this,LoginActivity.class));
                 break;
             case R.id.menu_item_salir:
-                //TODO caso salir
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 break;
         }
         return true;
@@ -280,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         //Qué actividad es la que retorna?
         switch (requestCode) {
-            case REQUEST_ENABLE_BT:
+            case Constantes.REQUEST_ENABLE_BT:
                 //Si el bluetooth ha sido activado
                 if (resultCode == Activity.RESULT_OK) {
 
@@ -292,6 +308,21 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2:
                 break;
+        }
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(backButtonCount >= 1){
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+        else{
+            Toast.makeText(this, "Pulsa otra vez para salir de la aplicacion.", Toast.LENGTH_SHORT).show();
+            backButtonCount++;
         }
     }
 }

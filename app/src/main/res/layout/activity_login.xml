@@ -60,6 +60,20 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/et_login_pass"/>
 
+    <RelativeLayout
+        android:id="@+id/loadingPanel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/disable_backgound"
+        android:gravity="center"
+        tools:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+    </RelativeLayout>
+
     <Button
         android:id="@+id/btn_login_google"
         android:layout_width="wrap_content"
@@ -69,10 +83,11 @@
         android:layout_marginBottom="8dp"
         android:drawableStart="@drawable/googleg_standard_color_18"
         android:text="@string/login_button_g"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_login"/>
+        app:layout_constraintTop_toBottomOf="@+id/btn_login" />
 
     <TextView
         android:id="@+id/tv_login_legal"

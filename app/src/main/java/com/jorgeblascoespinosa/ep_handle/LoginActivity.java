@@ -1,16 +1,22 @@
 package com.jorgeblascoespinosa.ep_handle;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,16 +34,15 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginActivity extends AppCompatActivity {
-    private static final int RECUEST_SIGN_IN_WITH_GOOGLE = 12;
-    private static final String TAG = "EP_HANDLE";
-    public static final String USER_EXTRA = "user";
-
     private GoogleSignInOptions gso;
     private GoogleSignInClient mGoogleSignInClient;
     private FirebaseAuth mAuth;
     private Button bn_login, bn_login_g;
     private EditText et_email, et_pass;
+    private RelativeLayout loadingScreen;
+    private ConstraintLayout loginLayout;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,54 +56,67 @@ public class LoginActivity extends AppCompatActivity {
         bn_login_g = findViewById(R.id.btn_login_google);
         et_email = findViewById(R.id.et_login_email);
         et_pass = findViewById(R.id.et_login_pass);
+        loginLayout = findViewById(R.id.login_layout);
+        loadingScreen = findViewById(R.id.loadingPanel);
+        loadingScreen.setVisibility(View.GONE);
 
         //----------Listeners-------------
+        loginLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (!(v.getId()==R.id.et_login_email || v.getId()==R.id.et_login_pass)){
+                    loginLayout.clearFocus();
+                    hideKeyboard();
+                }
+                return true;
+            }
+        });
         bn_login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideKeyboard();
                final String email = et_email.getText().toString().trim();
                String pass = et_pass.getText().toString().trim();
                if (email.isEmpty()){
-                   Toast.makeText(LoginActivity.this,"Debe introducir el email.",Toast.LENGTH_LONG);
+                   Toast.makeText(LoginActivity.this,"Debe introducir el email.",Toast.LENGTH_LONG).show();
                    return;
                }
                if (pass.isEmpty()){
-                   Toast.makeText(LoginActivity.this,"Debe introducir la contraseña.",Toast.LENGTH_LONG);
+                   Toast.makeText(LoginActivity.this,"Debe introducir la contraseña.",Toast.LENGTH_LONG).show();
+                   return;
                }
-
+               bn_login.setVisibility(View.INVISIBLE);
+               loadingScreen.setVisibility(View.VISIBLE);
                mAuth.signInWithEmailAndPassword(email,pass)
                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                            @Override
                            public void onComplete(@NonNull Task<AuthResult> task) {
                                if (task.isSuccessful()){
-                                   Log.d(TAG, "signInWithEmail:success");
-                                   Toast.makeText(LoginActivity.this, "Bienvenid@ "+email, Toast.LENGTH_SHORT).show();
-                                   Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                                   intent.putExtra(USER_EXTRA,mAuth.getCurrentUser());
-                                   startActivity(intent);
+                                   Log.d(Constantes.TAG, "signInWithEmail:success");
+                                   loadingScreen.setVisibility(View.GONE);
+                                   autenticacionValida(mAuth.getCurrentUser());
                                }
                                else {
-                                   if (task.getException() instanceof FirebaseAuthUserCollisionException){
-                                       Toast.makeText(LoginActivity.this,"Los datos introducidos no son correctos",Toast.LENGTH_LONG);
-                                   }
-                                   else {
-                                       Toast.makeText(LoginActivity.this,"El tipo de excepcion no coincide xD",Toast.LENGTH_LONG);
-                                   }
+                                   bn_login.setVisibility(View.VISIBLE);
+                                   loadingScreen.setVisibility(View.GONE);
+                                   Toast.makeText(LoginActivity.this,"Los datos introducidos no son correctos",Toast.LENGTH_LONG).show();
+                                   et_pass.setText("");
                                }
                            }
                        });
             }
         });
 
-        bn_login_g.setOnClickListener(new View.OnClickListener() {
+        /*bn_login_g.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                loadingScreen.setVisibility(View.VISIBLE);
                 Intent signInIntent = mGoogleSignInClient.getSignInIntent();
                 startActivityForResult(signInIntent,RECUEST_SIGN_IN_WITH_GOOGLE);
             }
         });
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(this,gso);*/
     }
 
     @Override
@@ -107,9 +125,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null){
             //Si está logeado ya, ir a la actividad principal.
-            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-            intent.putExtra(USER_EXTRA,currentUser);
-            startActivity(intent);
+            autenticacionValida(currentUser);
         }
     }
 
@@ -117,17 +133,17 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
-            case RECUEST_SIGN_IN_WITH_GOOGLE:
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            case Constantes.REQUEST_SIGN_IN_WITH_GOOGLE:
+                /*Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                 try{
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     firebaseAuthWithGoogle(account);
-                    Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-                    intent.putExtra(USER_EXTRA,mAuth.getCurrentUser());
-                    startActivity(intent);
+                    loadingScreen.setVisibility(View.GONE);
+                    autenticacionValida(mAuth.getCurrentUser());
                 } catch (ApiException e) {
                     Log.w(TAG,"El inicio de sesión de google ha fallado");
-                }
+                }*/
+                break;
         }
     }
 
@@ -137,11 +153,11 @@ public class LoginActivity extends AppCompatActivity {
      */
     private void autenticacionValida(FirebaseUser user) {
         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
-        intent.putExtra(USER_EXTRA,user);
+        intent.putExtra(Constantes.USER_EXTRA,user);
         startActivity(intent);
     }
 
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
+   /* private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -164,8 +180,19 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
-    }
+    }*/
 
+    public void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (view != null) {
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+        else {
+            view = loginLayout;
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
 }
 
 
