@@ -204,13 +204,11 @@ public class MainActivity extends AppCompatActivity {
                 //TODO caso terapeuta
                 break;
             case R.id.menu_item_dispositivo:
-                //TODO caso dispositivo
                 if (!btCompatible) {
                     abrirDialogoNoBt();
                 } else {
                     Intent seleccionarDispositivo = new Intent(MainActivity.this, DispositivoActivity.class);
                     startActivityForResult(seleccionarDispositivo, Constantes.REQUEST_SELECT_DEVICE);
-                    //TODO iniciar actividad de selección de dispositivo
                 }
                 break;
             case R.id.menu_item_config:
@@ -248,9 +246,9 @@ public class MainActivity extends AppCompatActivity {
             //Petición de activación de bluetooth
             case Constantes.REQUEST_ENABLE_BT:
                 if (resultCode == Activity.RESULT_OK) {
-                    //TODO
+                    //TODO si activa el bluetooth ante la petición
                 } else if (resultCode == Activity.RESULT_CANCELED) {
-                    //TODO
+                    //TODO si no lo activa
                 }
                 break;
 
@@ -268,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
             //Petición de sesión
             case Constantes.REQUEST_SESSION:
                 if (resultCode == Activity.RESULT_OK) {
-                    //TODO qué hacer con lo que me viene de la sesión.
+                    //TODO debe venirme un MAP de la sesion, que hay que subirlo a la nube.
                 }
         }
     }

@@ -32,6 +32,9 @@ public class PreferencesActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         cargaDatos();
         cargaListeners();
+        cbVibracion.setEnabled(false);
+        sbVibracion.setEnabled(false);
+        sbBrillo.setEnabled(false);
     }
 
     private void asignar() {
@@ -53,9 +56,9 @@ public class PreferencesActivity extends AppCompatActivity {
             cargaPreferenciasPorDefecto();
         }
         sbVibracion.setProgress(prefs.getInt(Constantes.PREF_VIBR_INTENSITY,49));
-        sbVolumen.setProgress(prefs.getInt(Constantes.PREF_SOUND_VOLUME,49));
+        sbVolumen.setProgress(prefs.getInt(Constantes.PREF_SOUND_VOLUME,1000));
         sbBrillo.setProgress(prefs.getInt(Constantes.PREF_LIGHT_BRIGHTNESS,3));
-        cbVibracion.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_VIBRATION,true));
+        cbVibracion.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_VIBRATION,false));
         cbSonido.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_SOUND,true));
         cbIluminacion.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_LIGHT,true));
         cbNotificaciones.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_NOTIFICATIONS,true));
@@ -63,12 +66,12 @@ public class PreferencesActivity extends AppCompatActivity {
 
     private void cargaPreferenciasPorDefecto() {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,true);
+        editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,false);
         editor.putBoolean(Constantes.PREF_ENABLE_SOUND,true);
         editor.putBoolean(Constantes.PREF_ENABLE_LIGHT,true);
         editor.putBoolean(Constantes.PREF_ENABLE_NOTIFICATIONS,true);
         editor.putInt(Constantes.PREF_VIBR_INTENSITY,49);
-        editor.putInt(Constantes.PREF_SOUND_VOLUME,49);
+        editor.putInt(Constantes.PREF_SOUND_VOLUME,1000);
         editor.putInt(Constantes.PREF_LIGHT_BRIGHTNESS,3);
         editor.putBoolean(Constantes.LOAD_DEFAULT_SETTINGS,false);
         editor.apply();

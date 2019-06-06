@@ -87,6 +87,8 @@ public class DispositivoActivity extends AppCompatActivity {
         bnBuscar.setOnClickListener(buscarListener);
     }
 
+    //TODO al hacer click en el dispositivo, se sincroniza. Se mueve de la lista de abajo, a la de arriba. Al volver a seleccionar de la lista de arriba, se abre un dialogo de confirmacion "desea vincular este dispotivo?" Meter el dispositivo en los EXTRA y volver a la actividad inicial.
+
     private void buscarDispositivos() {
         if (mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
