@@ -12,16 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".SesionActivity"></activity>
+        <activity android:name=".DispositivoActivity" />
         <activity
             android:name=".PreferencesActivity"
-            android:parentActivityName=".MainActivity">
-        </activity>
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AcercaDeActivity"
             android:parentActivityName=".MainActivity" />
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

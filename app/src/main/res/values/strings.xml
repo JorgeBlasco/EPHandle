@@ -60,4 +60,11 @@
     <string name="tv_about_device">Dispositivo asociado:</string>
     <string name="logo_content_description">Logo de EP-Handle</string>
     <string name="bn_reset">Restablecer</string>
+    <string name="dialog_no_bt_title">Bluetooth no disponible</string>
+    <string name="dialog_no_bt_message">El bluetooth no está disponible en este dispositivo, por favor, inténtalo con otro dispositivo.</string>
+    <string name="bn_search_devices">Buscar dispositivos</string>
+    <string name="tv_dispositivo_vinculado">Dispositivo vinculado:</string>
+    <string name="tv_dispositivo_nuevos">Dispositivos nuevos:</string>
+    <string name="tv_dispositivos_vinculados">Dispositivos vinculados:</string>
+    <string name="bn_search_devices_stop">Detener búsqueda</string>
 </resources>

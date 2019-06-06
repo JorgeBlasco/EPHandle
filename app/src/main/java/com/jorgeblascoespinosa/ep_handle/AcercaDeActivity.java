@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 public class AcercaDeActivity extends AppCompatActivity {
 
-    public static final String DEVICE_NAME = "device_name";
     Button bnVolver;
     TextView tvFecha, tvDispositivo;
     Toolbar toolbar;
@@ -40,6 +39,6 @@ public class AcercaDeActivity extends AppCompatActivity {
         );
         tvFecha.setText(fecha);
         if (savedInstanceState != null)
-        tvDispositivo.setText(savedInstanceState.getString(DEVICE_NAME));
+        tvDispositivo.setText(savedInstanceState.getString(Constantes.DEVICE_NAME));
     }
 }

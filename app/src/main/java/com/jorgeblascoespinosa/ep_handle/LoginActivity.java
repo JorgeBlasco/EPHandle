@@ -174,7 +174,6 @@ public class LoginActivity extends AppCompatActivity {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Snackbar.make(findViewById(R.id.login_layout),"Authentication Failed.", Snackbar.LENGTH_SHORT).show();
-                            //TODO limpiar los textFields?
 //                            et_email.setText("");
 //                            et_pass.setText("");
                         }

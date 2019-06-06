@@ -54,6 +54,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:checked="true"
         android:text="@string/checkbox_enabled"
         app:layout_constraintStart_toStartOf="@+id/tv_pref_subtitle_vib"
         app:layout_constraintTop_toBottomOf="@+id/tv_pref_subtitle_vib" />
@@ -96,6 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:checked="true"
         android:text="@string/checkbox_enabled"
         app:layout_constraintStart_toStartOf="@+id/tv_pref_subtitle_sound"
         app:layout_constraintTop_toBottomOf="@+id/tv_pref_subtitle_sound" />
@@ -113,13 +115,12 @@
         android:id="@+id/sb_pref_vol"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="16dp"
         android:max="99"
         android:progress="49"
         app:layout_constraintBottom_toBottomOf="@+id/tv_pref_vol"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_pref_vol"
+        app:layout_constraintStart_toStartOf="@+id/sb_pref_intensity"
         app:layout_constraintTop_toTopOf="@+id/tv_pref_vol" />
 
     <TextView
@@ -137,6 +138,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:checked="true"
         android:text="@string/checkbox_enabled"
         app:layout_constraintStart_toStartOf="@+id/tv_pref_subtitle_iluminacion"
         app:layout_constraintTop_toBottomOf="@+id/tv_pref_subtitle_iluminacion" />
@@ -154,13 +156,12 @@
         android:id="@+id/sb_pref_brillo"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="16dp"
         android:max="5"
         android:progress="3"
         app:layout_constraintBottom_toBottomOf="@+id/tv_pref_intensidad"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_pref_intensidad"
+        app:layout_constraintStart_toStartOf="@+id/sb_pref_vol"
         app:layout_constraintTop_toTopOf="@+id/tv_pref_intensidad" />
 
     <View
@@ -201,6 +202,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
+        android:checked="true"
         android:text="@string/checkbox_enabled"
         app:layout_constraintStart_toStartOf="@+id/tv_pref_subtitle_notifications"
         app:layout_constraintTop_toBottomOf="@+id/tv_pref_subtitle_notifications" />
@@ -225,7 +227,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="16dp"
         android:text="@string/bn_reset"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
