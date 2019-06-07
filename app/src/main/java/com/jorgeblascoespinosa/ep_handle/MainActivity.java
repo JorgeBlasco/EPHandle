@@ -1,7 +1,6 @@
 package com.jorgeblascoespinosa.ep_handle;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -24,6 +23,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
@@ -33,9 +33,9 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private int backButtonCount = 0;
-    private boolean btCompatible = true;
+    private boolean btConectado, btCompatible = true;
+
     private BroadcastReceiver mBluetoothStateReceiver;
-    private Toast btDesconectado = Toast.makeText(this, "El bluetooth no está disponible.", Toast.LENGTH_SHORT);
     private BluetoothDevice dispositvo;
 
     private TextView tv_bluetoothState, tv_deviceName, tv_day, tv_totalSessions, tv_sessionObjective;
@@ -47,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null)
+            dispositvo = savedInstanceState.getParcelable(Constantes.DEVICE_EXTRA);
         SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         //Guardamos la fecha de registro en las preferencias (sólo la primera vez que se inicia la app)
         if (prefs.getString(Constantes.PREF_FECHA_REGISTRO, null) == null) {
@@ -72,23 +74,31 @@ public class MainActivity extends AppCompatActivity {
             btCompatible = false;
         else
             configBluetooth();
-        actualizaUI();
-
-
         //Para lanzar el intent  que muestra un dialogo de activación del bluetooth (sin salir de la aplicacion)
         if (!mBluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, Constantes.REQUEST_ENABLE_BT);
         }
+        actualizaUI();
     }
-
+    //TODO al volver de otro intent, el dispositivo seleccionado se va.
     /**
      * Actualiza la vista con los datos de la base de datos.
      */
     private void actualizaUI() {
         if (!btCompatible) {
-            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_not_connected));
+            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_available));
             tv_bluetoothState.setTextColor(Color.RED);
+        } /*else if (!btConectado) {
+            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_activated));
+            tv_bluetoothState.setTextColor(Color.RED);
+        } */else {
+            tv_bluetoothState.setText(getString(R.string.bluetooth_state_ready));
+            tv_bluetoothState.setTextColor(Color.GREEN);
+        }
+        if (dispositvo != null) {
+            tv_deviceName.setText(dispositvo.getName()==null?"Desconocido":dispositvo.getName());
+            tv_bluetoothState.setText(getString(R.string.bluetooth_state_connected));
         }
         //TODO IMPORTANTE recojo los datos de la base de datos y los muestro en la pantalla
     }
@@ -101,19 +111,21 @@ public class MainActivity extends AppCompatActivity {
         bn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sp_sessionType.getSelectedItem().toString().equals(getResources().getStringArray(R.array.session_types)[0])) {
-                    Toast.makeText(MainActivity.this, "Selecciona un tipo de sesión.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Intent sesion = new Intent(MainActivity.this, SesionActivity.class);
-                    Bundle extras = new Bundle();
-                    extras.putParcelable(Constantes.DEVICE_EXTRA, dispositvo);
-                    extras.putString(Constantes.SESSION_EXTRA, sp_sessionType.getSelectedItem().toString());
-                    if (cb_setTime.isChecked()) {
-                        extras.putInt(Constantes.TIME_EXTRA, Integer.parseInt(et_settedTime.getText().toString()));
+                    if (sp_sessionType.getSelectedItem().toString().equals(getApplicationContext().getResources().getStringArray(R.array.session_types)[0])) {
+                        Toast.makeText(MainActivity.this, "Selecciona un tipo de sesión.", Toast.LENGTH_SHORT).show();
+                        //TODO
+                    } else {
+                        Intent sesion = new Intent(MainActivity.this, SesionActivity.class);
+                       // Bundle extras = new Bundle();
+                       // extras.putParcelable(Constantes.DEVICE_EXTRA, dispositvo);
+                        sesion.putExtra(Constantes.DEVICE_EXTRA, dispositvo);
+                        sesion.putExtra(Constantes.SESSION_EXTRA, sp_sessionType.getSelectedItem().toString());
+                        if (cb_setTime.isChecked()) {
+                            sesion.putExtra(Constantes.TIME_EXTRA, Integer.parseInt(et_settedTime.getText().toString()));
+                        }
+                        //sesion.putExtras(extras);
+                        startActivityForResult(sesion, Constantes.REQUEST_SESSION);
                     }
-                    sesion.putExtras(extras);
-                    startActivityForResult(sesion, Constantes.REQUEST_SESSION);
-                }
                 //TODO abrir actividad de sesión, recogiendo el tipo de sesión, el tiempo fijado (si hay)
             }
         });
@@ -127,32 +139,35 @@ public class MainActivity extends AppCompatActivity {
                             BluetoothAdapter.ERROR);
                     switch (state) {
                         case BluetoothAdapter.STATE_OFF:
-                            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_not_connected));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_activated));
                             tv_bluetoothState.setTextColor(Color.RED);
                             bn_start.setEnabled(false);
-                            btDesconectado.show();
+                            btConectado = false;
+                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.STATE_TURNING_OFF:
-                            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_turning_off));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_turning_off));
                             tv_bluetoothState.setTextColor(Color.RED);
+                            tv_deviceName.setText(getString(R.string.bluetooth_state_ready));
                             bn_start.setEnabled(false);
-                            btDesconectado.show();
+                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.STATE_ON:
-                            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_connected));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_ready));
                             tv_bluetoothState.setTextColor(Color.GREEN);
                             break;
                         case BluetoothAdapter.STATE_TURNING_ON:
-                            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_turning_on));
-                            tv_bluetoothState.setTextColor(Color.YELLOW);
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_turning_on));
+                            tv_bluetoothState.setTextColor(Color.BLACK);
                             bn_start.setEnabled(false);
-                            btDesconectado.show();
+                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.ERROR:
-                            tv_bluetoothState.setText(getResources().getText(R.string.bluetooth_state_error));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_error));
                             tv_bluetoothState.setTextColor(Color.RED);
                             bn_start.setEnabled(false);
-                            btDesconectado.show();
+                            btConectado = false;
+                            //btDesconectado.show();
                             break;
                     }
                 }
@@ -204,8 +219,9 @@ public class MainActivity extends AppCompatActivity {
                 //TODO caso terapeuta
                 break;
             case R.id.menu_item_dispositivo:
-                if (!btCompatible) {
-                    abrirDialogoNoBt();
+                if (!btCompatible || !btConectado) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, Constantes.REQUEST_ENABLE_BT_DEVICE);
                 } else {
                     Intent seleccionarDispositivo = new Intent(MainActivity.this, DispositivoActivity.class);
                     startActivityForResult(seleccionarDispositivo, Constantes.REQUEST_SELECT_DEVICE);
@@ -246,9 +262,21 @@ public class MainActivity extends AppCompatActivity {
             //Petición de activación de bluetooth
             case Constantes.REQUEST_ENABLE_BT:
                 if (resultCode == Activity.RESULT_OK) {
-                    //TODO si activa el bluetooth ante la petición
+                    btConectado = true;
+                    //TODO actualizar
                 } else if (resultCode == Activity.RESULT_CANCELED) {
-                    //TODO si no lo activa
+                    btConectado = false;
+                }
+                break;
+
+            //Petición de activación de bluetooth y abrir intent de dispositivo
+            case Constantes.REQUEST_ENABLE_BT_DEVICE:
+                if (resultCode == Activity.RESULT_OK) {
+                    btConectado = true;
+                    Intent seleccionarDispositivo = new Intent(MainActivity.this, DispositivoActivity.class);
+                    startActivityForResult(seleccionarDispositivo, Constantes.REQUEST_SELECT_DEVICE);
+                } else if (resultCode == Activity.RESULT_CANCELED) {
+                    btConectado = false;
                 }
                 break;
 
@@ -257,13 +285,13 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     if (data != null) {
                         dispositvo = data.getParcelableExtra(Constantes.DEVICE_EXTRA);
-                        tv_deviceName.setText(dispositvo.getName());
+                        tv_deviceName.setText(dispositvo.getName()==null?"Desconocido":dispositvo.getName());
                     } else
-                        tv_deviceName.setText(getString(R.string.bluetooth_state_not_connected));
+                        tv_deviceName.setText(getString(R.string.bluetooth_state_not_available));
                 } else
-                    tv_deviceName.setText(getString(R.string.bluetooth_state_not_connected));
+                    tv_deviceName.setText(getString(R.string.bluetooth_state_not_available));
                 break;
-            //Petición de sesión
+            //Petición de intent de sesión
             case Constantes.REQUEST_SESSION:
                 if (resultCode == Activity.RESULT_OK) {
                     //TODO debe venirme un MAP de la sesion, que hay que subirlo a la nube.
@@ -296,17 +324,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mBluetoothStateReceiver);
-    }
-
-    /**
-     * Muestra un diálogo que informa de que el bluetooth no está disponible.
-     */
-    public void abrirDialogoNoBt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_no_bt_title))
-                .setMessage(getString(R.string.dialog_no_bt_message));
-        AlertDialog dialog = builder.create();
-
+        if (mBluetoothStateReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothStateReceiver);
     }
 }

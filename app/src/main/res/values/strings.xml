@@ -10,9 +10,12 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="bluetooth_state_not_connected">No conectado</string>
-    <string name="bluetooth_state_turning_off">Apagando</string>
+    <string name="bluetooth_state_not_available">No disponible</string>
+    <string name="bluetooth_state_not_activated">Desactivado</string>
     <string name="bluetooth_state_connected">Conectado</string>
+    <string name="bluetooth_state_ready">Listo</string>
+    <string name="bluetooth_state_turning_off">Apagando</string>
+    <string name="bluetooth_state_available">Disponible</string>
     <string name="bluetooth_state_turning_on">Encendiendo</string>
     <string name="bluetooth_state_error">Error de bluetooth</string>
     <string name="about_register_date_not_found">No registrado</string>

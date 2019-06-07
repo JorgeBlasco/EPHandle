@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -12,8 +14,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".SesionActivity"></activity>
-        <activity android:name=".DispositivoActivity" />
+        <activity
+            android:name=".SesionActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
+            android:name=".DispositivoActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".PreferencesActivity"
             android:parentActivityName=".MainActivity" />

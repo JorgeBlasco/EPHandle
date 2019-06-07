@@ -5,7 +5,10 @@ public class Constantes {
     public static final int REQUEST_SELECT_DEVICE = 2;
     public static final int REQUEST_SIGN_IN_WITH_GOOGLE = 3;
     public static final int REQUEST_SESSION = 4;
+    public static final int REQUEST_ENABLE_BT_DEVICE = 5;
+    public static final int REQUEST_PERMISSION = 6;
     public static final String TAG = "EP_HANDLE";
+    public static final String UUID = "00001101-0000-1000-8000-00805F9B34FB";
     public static final String EP_HANDLE_PREFS = "EP-Handle-prefs";
     public static final String EP_HANDLE_OLD_PREFS = "EP_HANDLE_OLD_PREFS";
     public static final String PREF_FECHA_REGISTRO = "PREF_FECHA_REGISTRO";
@@ -28,8 +31,7 @@ public class Constantes {
     public static final char TOGGLE_BUZZER = 'B';
     public static final char TOGGLE_VIBRATION = 'V';
     public static final char TOGGLE_LIGHT = 'L';
-    public static final char SET_TONE = 'v';
+    public static final char SET_TONE = 't';
     public static final char SET_BRIGHTNESS = 'b';
     public static final char SET_VIB_POWER = 'p';
-
 }
