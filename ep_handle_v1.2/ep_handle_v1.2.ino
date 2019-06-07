@@ -69,7 +69,7 @@ void loop() {
       while(Serial.available())
       {
         String msg = Serial.readStringUntil('*');
-        if (msg.indexOf(TOGGLE_BUZZER)>0)
+        if (msg.indexOf(TOGGLE_BUZZER)>=0)
         {
           buzzer=!buzzer;
         }
