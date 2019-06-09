@@ -7,6 +7,23 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
 
+    <!-- Dummy item to prevent AutoCompleteTextView from receiving focus -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
+    <!-- :nextFocusUp and :nextFocusLeft have been set to the id of this component
+    to prevent the dummy from receiving focus again -->
+    <AutoCompleteTextView
+        android:id="@+id/autotext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:nextFocusLeft="@id/autotext"
+        android:nextFocusUp="@id/autotext"
+        android:visibility="invisible" />
+
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"

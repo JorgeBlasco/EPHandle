@@ -11,9 +11,8 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="bluetooth_state_not_available">No disponible</string>
-    <string name="bluetooth_state_not_activated">Desactivado</string>
     <string name="bluetooth_state_connected">Conectado</string>
-    <string name="bluetooth_state_ready">Listo</string>
+    <string name="bluetooth_state_not_connected">No conectado</string>
     <string name="bluetooth_state_turning_off">Apagando</string>
     <string name="bluetooth_state_available">Disponible</string>
     <string name="bluetooth_state_turning_on">Encendiendo</string>
@@ -66,8 +65,15 @@
     <string name="dialog_no_bt_title">Bluetooth no disponible</string>
     <string name="dialog_no_bt_message">El bluetooth no está disponible en este dispositivo, por favor, inténtalo con otro dispositivo.</string>
     <string name="bn_search_devices">Buscar dispositivos</string>
-    <string name="tv_dispositivo_vinculado">Dispositivo vinculado:</string>
-    <string name="tv_dispositivo_nuevos">Dispositivos nuevos:</string>
-    <string name="tv_dispositivos_vinculados">Dispositivos vinculados:</string>
+    <string name="tv_dispositivo_disponibles">Dispositivos disponibles:</string>
     <string name="bn_search_devices_stop">Detener búsqueda</string>
+    <string name="tv_session_vib">Vibración</string>
+    <string name="tv_session_alerts">Avisos</string>
+    <string name="tv_session_sound">Sonido</string>
+    <string name="tv_session_light">Iluminación</string>
+    <string name="tv_session_tag1">Tiempo Objetivo:</string>
+    <string name="tv_session_tag2">Tiempo transcurrido:</string>
+    <string name="bn_session_pause">Pausar</string>
+    <string name="bn_session_stop">Detener</string>
+    <string name="bn_session_play">Continuar</string>
 </resources>

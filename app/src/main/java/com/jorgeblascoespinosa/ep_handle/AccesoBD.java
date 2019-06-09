@@ -4,15 +4,33 @@ import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class AccesoBD {
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static FirebaseAuth auth = FirebaseAuth.getInstance();
 
+    public static void guardaSesion(TreeMap datos) {
+        String uid = auth.getUid();
+        Date c = Calendar.getInstance().getTime();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd");
+        db.collection(uid).document("sesiones").collection(df.format(c)).add(datos);
+    }
 
-    private void prueba(){
+    private void prueba() {
         db.collection("users").whereEqualTo("primero", "Ada").get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -24,7 +42,10 @@ public class AccesoBD {
                     }
                 });
     }
-    //Insertar datos en la base de datos
+}
+
+
+//Insertar datos en la base de datos
        /* Map<String, Object> user = new HashMap<>();
         user.put("primero","Ada");
         user.put("segundo","Lovelace");
@@ -45,12 +66,5 @@ public class AccesoBD {
         user.put("tercero",1815);
 
         db.collection("users")
-                .add(user);
+                .add(user);*/
 
-                //-----------bloque separado----------------------
-
-                */
-
-    //   bt.setText("Hay bluetooth? " + (btCompatible?"Si":"No"));
-
-}

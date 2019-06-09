@@ -26,31 +26,36 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private int backButtonCount = 0;
-    private boolean btConectado, btCompatible = true;
+    private boolean btConectado, btCompatible = false;
 
     private BroadcastReceiver mBluetoothStateReceiver;
     private BluetoothDevice dispositvo;
 
-    private TextView tv_bluetoothState, tv_deviceName, tv_day, tv_totalSessions, tv_sessionObjective;
+    private TextView tv_bluetoothState, tv_deviceName, tv_day, tv_totalSessions;
     private Spinner sp_sessionType;
     private Button bn_start;
     private CheckBox cb_setTime;
     private EditText et_settedTime;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null)
-            dispositvo = savedInstanceState.getParcelable(Constantes.DEVICE_EXTRA);
-        SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
+        setContentView(R.layout.activity_main);
+        relacionarViews();
+        setSupportActionBar(mToolbar);
         //Guardamos la fecha de registro en las preferencias (sólo la primera vez que se inicia la app)
+        SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         if (prefs.getString(Constantes.PREF_FECHA_REGISTRO, null) == null) {
             SharedPreferences.Editor editor = prefs.edit();
             Date c = Calendar.getInstance().getTime();
@@ -58,49 +63,74 @@ public class MainActivity extends AppCompatActivity {
             editor.putString(Constantes.PREF_FECHA_REGISTRO, df.format(c));
             editor.apply();
         }
-        setContentView(R.layout.activity_main);
-        relacionarViews();
+
+        //Configuramos el listener del checkbox
         cb_setTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 et_settedTime.setEnabled(isChecked);
             }
         });
-        setSupportActionBar(mToolbar);
-        //Obtener la referencia a la base de datos Firebase
         //Obtener el adaptador bluetooth
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null)
             btCompatible = false;
-        else
+        else{
+            btCompatible = true;
+            //Lanzamos el intent  que muestra un diálogo de activación del bluetooth (sin salir de la aplicación)
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, Constantes.REQUEST_ENABLE_BT);
+            }
             configBluetooth();
-        //Para lanzar el intent  que muestra un dialogo de activación del bluetooth (sin salir de la aplicacion)
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, Constantes.REQUEST_ENABLE_BT);
         }
-        actualizaUI();
+        //Cargamos los datos en sus respectivos contenedores.
+        actualizaUI(savedInstanceState);
     }
-    //TODO al volver de otro intent, el dispositivo seleccionado se va.
+
     /**
      * Actualiza la vista con los datos de la base de datos.
+     * @param savedInstanceState
      */
-    private void actualizaUI() {
+    private void actualizaUI(Bundle savedInstanceState) {
+        SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE);
+        int numSesiones = prefs.getInt(Constantes.PREF_SESSION_NUMBER,0);
+        tv_totalSessions.setText(String.valueOf(numSesiones));
         if (!btCompatible) {
             tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_available));
             tv_bluetoothState.setTextColor(Color.RED);
-        } /*else if (!btConectado) {
-            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_activated));
-            tv_bluetoothState.setTextColor(Color.RED);
-        } */else {
-            tv_bluetoothState.setText(getString(R.string.bluetooth_state_ready));
+        }else {
+            tv_bluetoothState.setText(getString(R.string.bluetooth_state_available));
             tv_bluetoothState.setTextColor(Color.GREEN);
         }
         if (dispositvo != null) {
             tv_deviceName.setText(dispositvo.getName()==null?"Desconocido":dispositvo.getName());
             tv_bluetoothState.setText(getString(R.string.bluetooth_state_connected));
         }
-        //TODO IMPORTANTE recojo los datos de la base de datos y los muestro en la pantalla
+        if (savedInstanceState!=null){
+            dispositvo = savedInstanceState.getParcelable(Constantes.DEVICE_EXTRA);
+
+            if (savedInstanceState.containsKey(Constantes.SESSION_POSITION_EXTRA))
+                sp_sessionType.setSelection(savedInstanceState.getInt(Constantes.SESSION_POSITION_EXTRA));
+            if (savedInstanceState.containsKey(Constantes.TIME_EXTRA)){
+                cb_setTime.setChecked(true);
+                et_settedTime.setText(String.valueOf(savedInstanceState.getInt(Constantes.TIME_EXTRA)));
+            }
+        }
+        else
+            tv_deviceName.setText(R.string.bluetooth_state_not_connected);
+
+        String fecha = prefs.getString(Constantes.PREF_FECHA_REGISTRO,null);
+        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+        Date date;
+        try {
+            date=df.parse(fecha);
+            int dias = (int)((new Date().getTime()-date.getTime())/86400000);
+            dias++;
+            tv_day.setText(String.valueOf(dias));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -111,22 +141,24 @@ public class MainActivity extends AppCompatActivity {
         bn_start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if (sp_sessionType.getSelectedItem().toString().equals(getApplicationContext().getResources().getStringArray(R.array.session_types)[0])) {
+                    if (sp_sessionType.getSelectedItem().toString().equals(getApplicationContext().getResources().getStringArray(R.array.session_types)[0]))
                         Toast.makeText(MainActivity.this, "Selecciona un tipo de sesión.", Toast.LENGTH_SHORT).show();
-                        //TODO
-                    } else {
-                        Intent sesion = new Intent(MainActivity.this, SesionActivity.class);
-                       // Bundle extras = new Bundle();
-                       // extras.putParcelable(Constantes.DEVICE_EXTRA, dispositvo);
-                        sesion.putExtra(Constantes.DEVICE_EXTRA, dispositvo);
-                        sesion.putExtra(Constantes.SESSION_EXTRA, sp_sessionType.getSelectedItem().toString());
-                        if (cb_setTime.isChecked()) {
-                            sesion.putExtra(Constantes.TIME_EXTRA, Integer.parseInt(et_settedTime.getText().toString()));
+                    else {
+                        if (dispositvo!=null) {
+                            Intent sesion = new Intent(MainActivity.this, SesionActivity.class);
+                            // Bundle extras = new Bundle();
+                            // extras.putParcelable(Constantes.DEVICE_EXTRA, dispositvo);
+                            sesion.putExtra(Constantes.DEVICE_EXTRA, dispositvo);
+                            sesion.putExtra(Constantes.SESSION_EXTRA, sp_sessionType.getSelectedItem().toString());
+                            if (cb_setTime.isChecked()) {
+                                sesion.putExtra(Constantes.TIME_EXTRA, Integer.parseInt(et_settedTime.getText().toString()));
+                            }
+                            //sesion.putExtras(extras);
+                            startActivityForResult(sesion, Constantes.REQUEST_SESSION);
                         }
-                        //sesion.putExtras(extras);
-                        startActivityForResult(sesion, Constantes.REQUEST_SESSION);
+                        else
+                            Toast.makeText(MainActivity.this, "Selecciona un dispositivo del menú.", Toast.LENGTH_LONG).show();
                     }
-                //TODO abrir actividad de sesión, recogiendo el tipo de sesión, el tiempo fijado (si hay)
             }
         });
 
@@ -139,35 +171,32 @@ public class MainActivity extends AppCompatActivity {
                             BluetoothAdapter.ERROR);
                     switch (state) {
                         case BluetoothAdapter.STATE_OFF:
-                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_activated));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_available));
                             tv_bluetoothState.setTextColor(Color.RED);
                             bn_start.setEnabled(false);
                             btConectado = false;
-                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.STATE_TURNING_OFF:
                             tv_bluetoothState.setText(getString(R.string.bluetooth_state_turning_off));
                             tv_bluetoothState.setTextColor(Color.RED);
-                            tv_deviceName.setText(getString(R.string.bluetooth_state_ready));
+                            tv_deviceName.setText(getString(R.string.bluetooth_state_not_available));
                             bn_start.setEnabled(false);
-                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.STATE_ON:
-                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_ready));
+                            tv_bluetoothState.setText(getString(R.string.bluetooth_state_available));
                             tv_bluetoothState.setTextColor(Color.GREEN);
+                            bn_start.setEnabled(true);
                             break;
                         case BluetoothAdapter.STATE_TURNING_ON:
                             tv_bluetoothState.setText(getString(R.string.bluetooth_state_turning_on));
                             tv_bluetoothState.setTextColor(Color.BLACK);
                             bn_start.setEnabled(false);
-                            //btDesconectado.show();
                             break;
                         case BluetoothAdapter.ERROR:
                             tv_bluetoothState.setText(getString(R.string.bluetooth_state_error));
                             tv_bluetoothState.setTextColor(Color.RED);
                             bn_start.setEnabled(false);
                             btConectado = false;
-                            //btDesconectado.show();
                             break;
                     }
                 }
@@ -186,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
         tv_deviceName = findViewById(R.id.tv_device_name);
         tv_day = findViewById(R.id.tv_day);
         tv_totalSessions = findViewById(R.id.tv_total_sessions);
-        tv_sessionObjective = findViewById(R.id.tv_session_objective);
         sp_sessionType = findViewById(R.id.sp_session_type);
         bn_start = findViewById(R.id.bn_start);
         cb_setTime = findViewById(R.id.cb_set_time);
@@ -195,7 +223,6 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Asigna un layout al menú.
-     *
      * @param menu
      * @return
      */
@@ -216,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.menu_item_mi_terapeuta:
-                //TODO caso terapeuta
+                startActivity(new Intent(MainActivity.this, TerapeutaActivity.class));
                 break;
             case R.id.menu_item_dispositivo:
                 if (!btCompatible || !btConectado) {
@@ -236,6 +263,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.menu_item_cerrar_sesion:
                 FirebaseAuth.getInstance().signOut();
+                Intent i = new Intent(MainActivity.this, LoginActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 break;
             case R.id.menu_item_salir:
@@ -263,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
             case Constantes.REQUEST_ENABLE_BT:
                 if (resultCode == Activity.RESULT_OK) {
                     btConectado = true;
-                    //TODO actualizar
+                    configBluetooth();
                 } else if (resultCode == Activity.RESULT_CANCELED) {
                     btConectado = false;
                 }
@@ -294,9 +323,24 @@ public class MainActivity extends AppCompatActivity {
             //Petición de intent de sesión
             case Constantes.REQUEST_SESSION:
                 if (resultCode == Activity.RESULT_OK) {
-                    //TODO debe venirme un MAP de la sesion, que hay que subirlo a la nube.
+                    if (data!=null){
+                        TreeMap datos = new TreeMap((Map) data.getExtras().get(Constantes.DATA_EXTRA));
+                        AccesoBD.guardaSesion(datos);
+                        actualizaUI(null);
+                        reiniciarOpciones();
+                    }
                 }
+                break;
         }
+    }
+
+    /**
+     * Reinicia las opciones de sesión.
+     */
+    public void reiniciarOpciones(){
+        sp_sessionType.setSelection(0);
+        cb_setTime.setChecked(false);
+        et_settedTime.setText("");
     }
 
     /**
@@ -318,13 +362,30 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBluetoothStateReceiver);
-    }
+        backButtonCount=0;
+        if (mBluetoothStateReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothStateReceiver);    }
 
     @Override
     protected void onPause() {
         super.onPause();
+        backButtonCount=0;
         if (mBluetoothStateReceiver.isOrderedBroadcast())
             unregisterReceiver(mBluetoothStateReceiver);
+    }
+
+    /**
+     * Guardo todos los datos necesarios para reconstruir el estado anterior
+     * @param outState
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (dispositvo!=null)
+        outState.putParcelable(Constantes.DEVICE_EXTRA,dispositvo);
+        if (!sp_sessionType.getSelectedItem().toString().equals(getApplicationContext().getResources().getStringArray(R.array.session_types)[0]))
+            outState.putInt(Constantes.SESSION_POSITION_EXTRA,sp_sessionType.getSelectedItemPosition());
+        if (cb_setTime.isChecked())
+            outState.putInt(Constantes.TIME_EXTRA, Integer.parseInt(et_settedTime.getText().toString()));
+        super.onSaveInstanceState(outState);
     }
 }

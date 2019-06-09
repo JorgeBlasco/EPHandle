@@ -33,6 +33,8 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.Map;
+
 public class LoginActivity extends AppCompatActivity {
     private GoogleSignInOptions gso;
     private GoogleSignInClient mGoogleSignInClient;
@@ -42,8 +44,6 @@ public class LoginActivity extends AppCompatActivity {
     private RelativeLayout loadingScreen;
     private ConstraintLayout loginLayout;
 
-    @SuppressLint("ClickableViewAccessibility")
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
@@ -67,6 +67,7 @@ public class LoginActivity extends AppCompatActivity {
                 if (!(v.getId()==R.id.et_login_email || v.getId()==R.id.et_login_pass)){
                     loginLayout.clearFocus();
                     hideKeyboard();
+                    bn_login.requestFocus();
                 }
                 return true;
             }

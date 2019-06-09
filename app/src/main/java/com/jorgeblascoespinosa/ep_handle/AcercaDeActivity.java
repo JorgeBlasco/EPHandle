@@ -12,7 +12,7 @@ import android.widget.TextView;
 public class AcercaDeActivity extends AppCompatActivity {
 
     Button bnVolver;
-    TextView tvFecha, tvDispositivo;
+    TextView tvFecha, tvDispositivo, tvLicencia;
     Toolbar toolbar;
 
     @Override
@@ -24,7 +24,7 @@ public class AcercaDeActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         tvFecha = findViewById(R.id.tv_about_date);
-        tvDispositivo = findViewById(R.id.tv_about_device_name);
+        tvLicencia = findViewById(R.id.tv_about_license);
         bnVolver = findViewById(R.id.bn_volver);
         bnVolver.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,12 +33,10 @@ public class AcercaDeActivity extends AppCompatActivity {
             }
         });
         SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
-        String fecha = prefs.getString(
-                Constantes.PREF_FECHA_REGISTRO,
+        String fecha = prefs.getString(Constantes.PREF_FECHA_REGISTRO,
                 getResources().getString(R.string.about_register_date_not_found)
         );
         tvFecha.setText(fecha);
-        if (savedInstanceState != null)
-        tvDispositivo.setText(savedInstanceState.getString(Constantes.DEVICE_NAME));
+        tvLicencia.setText(Constantes.UUID);
     }
 }

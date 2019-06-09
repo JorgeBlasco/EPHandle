@@ -102,16 +102,17 @@ public class PreferencesActivity extends AppCompatActivity {
                 sbVolumen.setEnabled(isChecked);
             }
         });
-        cbIluminacion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                sbBrillo.setEnabled(isChecked);
-            }
-        });
+//        cbIluminacion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                sbBrillo.setEnabled(isChecked);
+//            }
+//        });
         bnGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 guardarDatos();
+                finish();
             }
         });
         bn_reset.setOnClickListener(new View.OnClickListener() {

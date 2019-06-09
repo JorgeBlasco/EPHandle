@@ -22,7 +22,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -34,13 +33,12 @@ public class DispositivoActivity extends AppCompatActivity {
     private BroadcastReceiver mDeviceFoundReceiver;
     private Button bnBuscar;
     private ProgressBar pbDiscovery;
-    private RecyclerView nuevos,sincronizados;
-    private AdaptadorDispositivos adapter_nuevos, adapter_sincronizados;
-    private RecyclerView.LayoutManager manager1, manager2;
+    private RecyclerView disponibles;
+    private AdaptadorDispositivos adapterDisponibles;
+    private RecyclerView.LayoutManager manager;
     private View.OnClickListener buscarListener, detenerListener;
-    private ArrayList<String> listaNuevos,listaSincronizados;
+    private ArrayList<String> listaDisponibles;
     private ArrayList<BluetoothDevice> bDevices = new ArrayList<>();
-    private UUID uuid = UUID.fromString(Constantes.UUID);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,47 +48,32 @@ public class DispositivoActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar_dispositivo);
         bnBuscar = findViewById(R.id.bn_dispositivo_buscar);
         pbDiscovery = findViewById(R.id.pb_discovery);
-        manager1 = new LinearLayoutManager(this);
-        manager2 = new LinearLayoutManager(this);
-        nuevos = findViewById(R.id.rv_found_devices);
-        nuevos.setHasFixedSize(true);
-        nuevos.setLayoutManager(manager1);
-        sincronizados = findViewById(R.id.rv_synchronized_devices);
-        sincronizados.setHasFixedSize(true);
-        sincronizados.setLayoutManager(manager2);
-        listaNuevos = new ArrayList<>();
-        listaSincronizados = getDispostivosSincronizados(); // Esto tmb se puede hacer con el método addItem()
+        manager = new LinearLayoutManager(this);
+        disponibles = findViewById(R.id.rv_found_devices);
+        disponibles.setHasFixedSize(true);
+        disponibles.setLayoutManager(manager);
+        listaDisponibles = new ArrayList<>();
         OnItemClickListener listenerNuevos = new OnItemClickListener() {
             @Override
             public void onClick(View v) {
-                int itemPosition = nuevos.getChildLayoutPosition(v);
-                try {
-                    //TODO  Al hacer click sobre un dispositivo ,se abre un dialogo de confirmacion "desea vincular este dispotivo?" Meter el dispositivo en los EXTRA y volver a la actividad inicial.
+                int itemPosition = disponibles.getChildLayoutPosition(v);
                     dispositivo = bDevices.get(itemPosition);
                     if (dispositivo.getName()==null)
                         Snackbar.make(findViewById(R.id.dispositivo_layout),"Dispositivo no compatible", Snackbar.LENGTH_SHORT).show();
                     else if (dispositivo.getName().contains("EP-Handle")){
-                        mBluetoothAdapter.cancelDiscovery();
-                        unregisterReceiver(mDeviceFoundReceiver);
-                        dispositivo.createRfcommSocketToServiceRecord(uuid);
-                        Intent result = new Intent();
-                        result.putExtra(Constantes.DEVICE_EXTRA,dispositivo);
-                        setResult(Activity.RESULT_OK,result);
-                        finish();
+                            unregisterReceiver(mDeviceFoundReceiver);
+                            Intent result = new Intent();
+                            result.putExtra(Constantes.DEVICE_EXTRA,dispositivo);
+                            setResult(Activity.RESULT_OK,result);
+                            finish();
                     }
                     else {
                         Snackbar.make(findViewById(R.id.dispositivo_layout),"Dispositivo no compatible", Snackbar.LENGTH_SHORT).show();
                     }
-                } catch (IOException e) {
-                    Log.e(Constantes.TAG,"Error al establecer la conexión.");
-                    finish();
-                }
             }
         };
-        adapter_nuevos = new AdaptadorDispositivos(listaNuevos,listenerNuevos);
-        adapter_sincronizados = new AdaptadorDispositivos(listaSincronizados,listenerNuevos);
-        nuevos.setAdapter(adapter_nuevos);
-        sincronizados.setAdapter(adapter_sincronizados);
+        adapterDisponibles = new AdaptadorDispositivos(listaDisponibles,listenerNuevos);
+        disponibles.setAdapter(adapterDisponibles);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -101,7 +84,7 @@ public class DispositivoActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(DispositivoActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, Constantes.REQUEST_PERMISSION);
                 }
                 pbDiscovery.setVisibility(View.VISIBLE);
-                adapter_nuevos.clear();
+                adapterDisponibles.clear();
                 buscarDispositivos();
                 bnBuscar.setText(getString(R.string.bn_search_devices_stop));
                 bnBuscar.setOnClickListener(detenerListener);
@@ -125,7 +108,7 @@ public class DispositivoActivity extends AppCompatActivity {
                     //Recuperamos el dispositivo del intent
                     BluetoothDevice d = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     //Añadimos el nombre y la dirección al adapter.
-                    adapter_nuevos.addItem((d.getName()==null?"Desconocido":d.getName()) + "\n" + d.getAddress());
+                    adapterDisponibles.addItem((d.getName()==null?"Desconocido":d.getName()) + "\n" + d.getAddress());
                     Log.d(Constantes.TAG,"Dispositivo encontrado: " + d.getName() + " : " + d.getAddress());
                     bDevices.add(d);
                 }

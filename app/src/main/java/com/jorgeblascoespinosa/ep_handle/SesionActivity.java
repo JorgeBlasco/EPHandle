@@ -1,5 +1,6 @@
 package com.jorgeblascoespinosa.ep_handle;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,72 +9,213 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Chronometer;
+import android.widget.CompoundButton;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 public class SesionActivity extends AppCompatActivity {
-    private BroadcastReceiver mBluetoothStateReceiver;
+    private BroadcastReceiver mBluetoothStateReceiver, mBluetoothDeviceStatusReceiver;
     private BluetoothSocket socket;
+    private TextView tvTitle,tvSessionTime;
+    private Button bnPause,bnStop;
+    private Switch swSound,swVib,swLight;
     private UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private SharedPreferences defaultPreferences, oldPreferences;
     private InputStream input = null;
     private OutputStream output = null;
-    private boolean[] cambios;
+    private Map<Character,Boolean> cambios;
+    private TreeMap<String,Object> datos = new TreeMap<>();
+    private CompoundButton.OnCheckedChangeListener listener;
+    private Chronometer crono;
+    private View.OnClickListener listenerPause, listenerPlay;
+    private boolean isPaused = false;
+    boolean stopWorker;
+    int readBufferPosition;
+    byte[] readBuffer;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sesion);
-        cambios = new boolean[]{false,false,false,false,false,false}; //1:Vibracion 2:Luz 3:Sonido 4:IntensidadVibracion 5:IntensidadLuz 6:Tono
+        tvTitle = findViewById(R.id.tv_session_title);
+        tvSessionTime = findViewById(R.id.tv_session_time);
+        bnPause = findViewById(R.id.bn_session_pause);
+        bnStop = findViewById(R.id.bn_session_stop);
+        swSound = findViewById(R.id.sw_sound);
+        swLight = findViewById(R.id.sw_light);
+        swVib = findViewById(R.id.sw_vib);
+        crono = findViewById(R.id.chronometer);
+        crono.start();
+        listener = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                byte data;
+                try {
+                    switch (buttonView.getId()) {
+                        case R.id.sw_light:
+                            data = Constantes.TOGGLE_LIGHT;
+                            output.write(data);
+                            break;
+                        case R.id.sw_sound:
+                            data = Constantes.TOGGLE_BUZZER;
+                            output.write(data);
+                            break;
+                        case R.id.sw_vib:
+                            data = Constantes.TOGGLE_VIBRATION;
+                            output.write(data);
+                            break;
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        listenerPause = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isPaused=true;
+                crono.stop();
+                bnPause.setText(R.string.bn_session_play);
+                bnPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_play_arrow_black_24dp,0,0,0);
+                bnPause.setOnClickListener(listenerPlay);
+            }
+        };
+        listenerPlay = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isPaused=false;
+                crono.start();
+                bnPause.setText(R.string.bn_session_pause);
+                bnPause.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_pause_black_24dp,0,0,0);
+                bnPause.setOnClickListener(listenerPause);
+            }
+        };
+
+
+        tvTitle.setText(getIntent().getStringExtra(Constantes.SESSION_EXTRA));
+        if (getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE).getString(Constantes.TIME_EXTRA,null)==null){
+            tvSessionTime.setText("40 min");
+        }
+        tvSessionTime.setText(String.valueOf(getIntent().getIntExtra(Constantes.TIME_EXTRA,0)));
+
+        bnPause.setOnClickListener(listenerPause);
+
+        bnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                int numSesiones = prefs.getInt(Constantes.PREF_SESSION_NUMBER,0);
+                editor.putInt(Constantes.PREF_SESSION_NUMBER,++numSesiones);
+                editor.apply();
+                Intent result = new Intent();
+                result.putExtra(Constantes.DATA_EXTRA,datos);
+                setResult(Activity.RESULT_OK,result);
+                finish();
+            }
+        });
+        cambios = new HashMap<>();
         BluetoothDevice dispositivo = getIntent().getParcelableExtra(Constantes.DEVICE_EXTRA);
         mBluetoothStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
                     final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                            //TODO registrar cambios de estado del bluetooth
                             BluetoothAdapter.ERROR);
                     switch (state) {
-                        case BluetoothAdapter.STATE_OFF:
-                            break;
                         case BluetoothAdapter.STATE_TURNING_OFF:
+                            bnPause.performClick();
                             break;
                         case BluetoothAdapter.STATE_ON:
-                            break;
-                        case BluetoothAdapter.STATE_TURNING_ON:
+                            listenerPlay.onClick(bnPause);
                             break;
                         case BluetoothAdapter.ERROR:
+                            bnPause.performClick();
                             break;
                     }
+                }
+            }
+        };
+        mBluetoothDeviceStatusReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(BluetoothDevice.ACTION_ACL_DISCONNECTED)){
+                    bnStop.performClick();
                 }
             }
         };
         defaultPreferences = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         oldPreferences = getSharedPreferences(Constantes.EP_HANDLE_OLD_PREFS,Context.MODE_PRIVATE);
         comparaPreferencias();
-        conectar(dispositivo);
-        try {
-            input = socket.getInputStream();
-            output = socket.getOutputStream();
-        } catch (IOException e) {
-            Log.e(Constantes.TAG,"Ha habido un problema al establecer la comunicación con los Streams");
-            finish();
+        if (conectar(dispositivo)){
+            try {
+                input = socket.getInputStream();
+                output = socket.getOutputStream();
+                sendConfig();
+            } catch (IOException e) {
+                Log.e(Constantes.TAG,"Ha habido un problema al establecer la comunicación con los Streams");
+                finish();
+            }
         }
-        //TODO crear un thread que va guardando los datos recibidos en un MAP
+
         //Declarar y registrar el evento de cambio de estado de bluetooth.
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mBluetoothStateReceiver, filter);
+        IntentFilter filter2 = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        registerReceiver(mBluetoothDeviceStatusReceiver, filter);
+
+        recibirDatos();
+        swSound.setOnCheckedChangeListener(listener);
+        swLight.setOnCheckedChangeListener(listener);
+        swVib.setOnCheckedChangeListener(listener);
     }
 
-
+    private void sendConfig() {
+        StringBuilder builder = new StringBuilder();
+        if (cambios.containsKey(Constantes.TOGGLE_BUZZER))
+            builder.append(Constantes.TOGGLE_BUZZER);
+        if (cambios.containsKey(Constantes.TOGGLE_LIGHT))
+            builder.append(Constantes.TOGGLE_LIGHT);
+        if (cambios.containsKey(Constantes.TOGGLE_VIBRATION))
+            builder.append(Constantes.TOGGLE_VIBRATION);
+        if (cambios.containsKey(Constantes.SET_TONE))
+            builder.append(""+Constantes.SET_TONE +
+                    ((oldPreferences.getInt(Constantes.PREF_SOUND_VOLUME,1000))+1000)
+            );
+        if (cambios.containsKey(Constantes.SET_BRIGHTNESS))
+            builder.append(Constantes.SET_BRIGHTNESS +
+                    (oldPreferences.getInt(Constantes.PREF_LIGHT_BRIGHTNESS,3))
+            );
+        if (cambios.containsKey(Constantes.SET_VIB_POWER))
+            builder.append(Constantes.SET_VIB_POWER +
+                    (oldPreferences.getInt(Constantes.PREF_VIBR_INTENSITY, 49))
+            );
+        Log.d(Constantes.TAG,"Configuración enviada: " + builder.toString());
+        byte[] data = builder.toString().getBytes();
+        try {
+            output.write(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     /**
@@ -85,7 +227,6 @@ public class SesionActivity extends AppCompatActivity {
         try {
             //Crear el socket
             socket = dispositivo.createRfcommSocketToServiceRecord(uuid);
-            //TODO Detener la detección de dispositivos
             socket.connect(); //Si tarda mas de 12 segundos, caduca.
             return true;
         } catch (IOException e) {
@@ -98,49 +239,77 @@ public class SesionActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mBluetoothStateReceiver);
+        try {
+            if (output != null)
+                output.close();
+            if (input != null){
+                input.close();
+            }
+        } catch (IOException e) {
+            Log.d(Constantes.TAG,e.getMessage());
+            e.printStackTrace();
+        }
+        if (mBluetoothStateReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothStateReceiver);
+        if (mBluetoothDeviceStatusReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothDeviceStatusReceiver);
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mBluetoothStateReceiver);
+        try {
+            if (output != null)
+                output.close();
+            if (input != null){
+                input.close();
+            }
+        } catch (IOException e) {
+            Log.d(Constantes.TAG,e.getMessage());
+            e.printStackTrace();
+        }
+        if (mBluetoothStateReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothStateReceiver);
+        if (mBluetoothDeviceStatusReceiver.isOrderedBroadcast())
+            unregisterReceiver(mBluetoothDeviceStatusReceiver);
     }
 
-    private void comparaPreferencias() {
+    private void comparaPreferencias() { //TODO Este método puede optimizarse, creando directamente aquí la string.
         SharedPreferences p = defaultPreferences;
         SharedPreferences o = oldPreferences;
         SharedPreferences.Editor editor = oldPreferences.edit();
         if (p.getBoolean(Constantes.PREF_ENABLE_VIBRATION,false) != o.getBoolean(Constantes.PREF_ENABLE_VIBRATION,false)){
             editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,p.getBoolean(Constantes.PREF_ENABLE_VIBRATION,false));
-            cambios[0] = true;
+            swVib.setChecked(p.getBoolean(Constantes.PREF_ENABLE_VIBRATION,false));
+            cambios.put(Constantes.TOGGLE_VIBRATION,true);
         }
         if (p.getBoolean(Constantes.PREF_ENABLE_LIGHT,true) != o.getBoolean(Constantes.PREF_ENABLE_LIGHT,true)){
             editor.putBoolean(Constantes.PREF_ENABLE_LIGHT,p.getBoolean(Constantes.PREF_ENABLE_LIGHT,true));
-            cambios[1] = true;
+            swLight.setChecked(p.getBoolean(Constantes.PREF_ENABLE_LIGHT,true));
+            cambios.put(Constantes.TOGGLE_LIGHT,true);
         }
         if (p.getBoolean(Constantes.PREF_ENABLE_SOUND,true) != o.getBoolean(Constantes.PREF_ENABLE_SOUND,true)){
             editor.putBoolean(Constantes.PREF_ENABLE_SOUND,p.getBoolean(Constantes.PREF_ENABLE_SOUND,true));
-            cambios[2] = true;
+            swSound.setChecked(p.getBoolean(Constantes.PREF_ENABLE_SOUND,true));
+            cambios.put(Constantes.TOGGLE_BUZZER,true);
         }
         if (p.getInt(Constantes.PREF_VIBR_INTENSITY,49) != o.getInt(Constantes.PREF_VIBR_INTENSITY,49)){
             editor.putInt(Constantes.PREF_VIBR_INTENSITY,p.getInt(Constantes.PREF_VIBR_INTENSITY,49));
-            cambios[3] = true;
+            cambios.put(Constantes.SET_VIB_POWER,true);
         }
         if (p.getInt(Constantes.PREF_LIGHT_BRIGHTNESS,3) != o.getInt(Constantes.PREF_LIGHT_BRIGHTNESS,3)){
             editor.putInt(Constantes.PREF_LIGHT_BRIGHTNESS,p.getInt(Constantes.PREF_LIGHT_BRIGHTNESS,3));
-            cambios[4] = true;
+            cambios.put(Constantes.SET_BRIGHTNESS,true);
         }
         if (p.getInt(Constantes.PREF_SOUND_VOLUME,1000) != o.getInt(Constantes.PREF_VIBR_INTENSITY,1000)){
             editor.putInt(Constantes.PREF_SOUND_VOLUME,p.getInt(Constantes.PREF_SOUND_VOLUME,1000));
-            cambios[5] = true;
+            cambios.put(Constantes.SET_TONE,true);
         }
         editor.apply();
-
-        //TODO CUANDO EMPIECE LA TRANSMISION DE DATOS, MANDAR LA ¡¡¡NUEVA!!! CONFIGURACION (la por defecto ya la tiene)
     }
 
-    private void cargaPreferenciasPorDefecto() { //TODO CUANDO CARGAMOS ESTO
+    private void cargaPreferenciasPorDefecto() {
         SharedPreferences.Editor editor = oldPreferences.edit();
         editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,false);
         editor.putBoolean(Constantes.PREF_ENABLE_SOUND,true);
@@ -152,4 +321,65 @@ public class SesionActivity extends AppCompatActivity {
         editor.putBoolean(Constantes.LOAD_DEFAULT_SETTINGS,false);
         editor.apply();
     }
+
+    void recibirDatos()
+    {
+        final Handler handler = new Handler();
+        final byte delimiter = 42; //This is the ASCII code for a '*' character
+
+        stopWorker = false;
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        Thread workerThread = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                while(!Thread.currentThread().isInterrupted() && !stopWorker)
+                {
+                    try
+                    {
+                        int bytesAvailable = input.available();
+                        if(bytesAvailable > 0)
+                        {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            input.read(packetBytes);
+                            for(int i=0;i<bytesAvailable;i++)
+                            {
+                                byte b = packetBytes[i];
+                                if(b == delimiter)
+                                {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final String data = new String(encodedBytes, "US-ASCII");
+                                    readBufferPosition = 0;
+
+                                    handler.post(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            if (!isPaused)
+                                            datos.put(""+System.currentTimeMillis(),data);
+                                            Log.d(Constantes.TAG,"Recibido: " + data);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+
+        workerThread.start();
+    }
+
+
 }

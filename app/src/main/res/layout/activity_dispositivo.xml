@@ -11,7 +11,7 @@
         android:id="@+id/toolbar_dispositivo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
+        android:background="@color/main"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -23,11 +23,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
         android:text="@string/bn_search_devices"
-        app:layout_constraintBottom_toTopOf="@+id/view6"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.34"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,59 +42,16 @@
         app:layout_constraintStart_toEndOf="@+id/bn_dispositivo_buscar"
         app:layout_constraintTop_toTopOf="@+id/bn_dispositivo_buscar" />
 
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.20" />
-
-    <View
-        android:id="@+id/view6"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
-        android:background="@android:color/holo_blue_light"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/guideline1"
-        tools:layout_editor_absoluteY="271dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginBottom="8dp"
-        android:text="@string/tv_dispositivos_vinculados"
-        android:textColor="@android:color/white"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/view6"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_synchronized_devices"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/guideline2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view6" />
-
-    <android.support.constraint.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.55" />
-
     <View
         android:id="@+id/view7"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:background="@android:color/holo_blue_light"
+        android:layout_marginTop="24dp"
+        android:background="#CCC"
+        app:layout_constraintTop_toBottomOf="@id/bn_dispositivo_buscar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline2" />
+        tools:layout_editor_absoluteY="402dp" />
 
 
     <TextView
@@ -104,8 +59,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="8dp"
-        android:text="@string/tv_dispositivo_nuevos"
-        android:textColor="@android:color/white"
+        android:text="@string/tv_dispositivo_disponibles"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/view7"

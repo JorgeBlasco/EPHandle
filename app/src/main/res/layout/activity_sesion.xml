@@ -6,4 +6,162 @@
     android:layout_height="match_parent"
     tools:context=".SesionActivity">
 
+    <TextView
+        android:id="@+id/tv_session_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="8dp"
+        android:lineSpacingExtra="10sp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Comida" />
+
+    <TextView
+        android:id="@+id/textView19"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="60dp"
+        android:text="@string/tv_session_alerts"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_session_title" />
+
+    <Switch
+        android:id="@+id/sw_sound"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="40dp"
+        android:checked="true"
+        app:layout_constraintStart_toStartOf="@+id/textView19"
+        app:layout_constraintTop_toBottomOf="@+id/textView19" />
+
+    <TextView
+        android:id="@+id/textView22"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/tv_session_sound"
+        app:layout_constraintBottom_toBottomOf="@+id/sw_sound"
+        app:layout_constraintStart_toEndOf="@+id/sw_sound"
+        app:layout_constraintTop_toTopOf="@+id/sw_sound" />
+
+    <Switch
+        android:id="@+id/sw_vib"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:checked="false"
+        android:enabled="false"
+        app:layout_constraintStart_toStartOf="@+id/sw_sound"
+        app:layout_constraintTop_toBottomOf="@+id/sw_sound" />
+
+    <TextView
+        android:id="@+id/textView23"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/tv_session_vib"
+        app:layout_constraintBottom_toBottomOf="@+id/sw_vib"
+        app:layout_constraintStart_toEndOf="@+id/sw_vib"
+        app:layout_constraintTop_toTopOf="@+id/sw_vib" />
+
+    <Switch
+        android:id="@+id/sw_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:checked="true"
+        app:layout_constraintStart_toStartOf="@+id/sw_vib"
+        app:layout_constraintTop_toBottomOf="@+id/sw_vib" />
+
+    <TextView
+        android:id="@+id/textView21"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/tv_session_light"
+        app:layout_constraintBottom_toBottomOf="@+id/sw_light"
+        app:layout_constraintStart_toEndOf="@+id/sw_light"
+        app:layout_constraintTop_toTopOf="@+id/sw_light" />
+
+    <TextView
+        android:id="@+id/textView14"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:text="@string/tv_session_tag1"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/textView19"
+        app:layout_constraintTop_toBottomOf="@+id/sw_light" />
+
+    <TextView
+        android:id="@+id/tv_session_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/textView14"
+        app:layout_constraintTop_toTopOf="@+id/textView14"
+        tools:text="15 min" />
+
+    <TextView
+        android:id="@+id/textView17"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/tv_session_tag2"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="@+id/textView14"
+        app:layout_constraintTop_toBottomOf="@+id/textView14" />
+
+    <Chronometer
+        android:id="@+id/chronometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:textColor="?attr/actionModeSplitBackground"
+        android:textSize="18sp"
+        app:layout_constraintStart_toEndOf="@+id/textView17"
+
+        app:layout_constraintTop_toBottomOf="@+id/tv_session_time" />
+
+    <Button
+        android:id="@+id/bn_session_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:drawableStart="@drawable/ic_pause_black_24dp"
+        android:text="@string/bn_session_pause"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/bn_session_stop"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
+    <Button
+        android:id="@+id/bn_session_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:drawableStart="@drawable/ic_stop_black_24dp"
+        android:text="@string/bn_session_stop"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toEndOf="@id/bn_session_pause"
+        app:layout_constraintTop_toBottomOf="@+id/textView17" />
+
 </android.support.constraint.ConstraintLayout>
