@@ -14,10 +14,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".TerapeutaActivity"></activity>
+        <activity
+            android:name=".TerapeutaActivity"
+            android:parentActivityName=".MainActivity">
+        </activity>
         <activity
             android:name=".SesionActivity"
-            android:parentActivityName=".MainActivity"></activity>
+            android:parentActivityName=".MainActivity">
+        </activity>
         <activity
             android:name=".DispositivoActivity"
             android:parentActivityName=".MainActivity" />
