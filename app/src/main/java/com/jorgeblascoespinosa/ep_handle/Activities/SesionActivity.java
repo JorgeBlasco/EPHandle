@@ -1,4 +1,4 @@
-package com.jorgeblascoespinosa.ep_handle;
+package com.jorgeblascoespinosa.ep_handle.Activities;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -21,6 +21,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jorgeblascoespinosa.ep_handle.Constantes;
+import com.jorgeblascoespinosa.ep_handle.R;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +35,6 @@ import java.util.UUID;
 public class SesionActivity extends AppCompatActivity {
     private BroadcastReceiver mBluetoothStateReceiver, mBluetoothDeviceStatusReceiver;
     private BluetoothSocket socket;
-    private TextView tvTitle,tvSessionTime;
     private Button bnPause,bnStop;
     private Switch swSound,swVib,swLight;
     private UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -41,7 +43,6 @@ public class SesionActivity extends AppCompatActivity {
     private OutputStream output = null;
     private Map<Character,Boolean> cambios;
     private TreeMap<String,Object> datos = new TreeMap<>();
-    private CompoundButton.OnCheckedChangeListener listener;
     private Chronometer crono;
     private View.OnClickListener listenerPause, listenerPlay;
     private boolean isPaused = false;
@@ -54,17 +55,22 @@ public class SesionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //Relacionar views
         setContentView(R.layout.activity_sesion);
-        tvTitle = findViewById(R.id.tv_session_title);
-        tvSessionTime = findViewById(R.id.tv_session_time);
+        TextView tvTitle = findViewById(R.id.tv_session_title);
+        TextView tvSessionTime = findViewById(R.id.tv_session_time);
         bnPause = findViewById(R.id.bn_session_pause);
         bnStop = findViewById(R.id.bn_session_stop);
         swSound = findViewById(R.id.sw_sound);
         swLight = findViewById(R.id.sw_light);
         swVib = findViewById(R.id.sw_vib);
         crono = findViewById(R.id.chronometer);
+        //Iniciar el crono
         crono.start();
-        listener = new CompoundButton.OnCheckedChangeListener() {
+
+        //Crear el listener para los switches
+        CompoundButton.OnCheckedChangeListener listener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 byte data;
@@ -88,6 +94,8 @@ public class SesionActivity extends AppCompatActivity {
                 }
             }
         };
+
+        //Crear el listener para el boton pause
         listenerPause = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +106,8 @@ public class SesionActivity extends AppCompatActivity {
                 bnPause.setOnClickListener(listenerPlay);
             }
         };
+
+        //Crear el listener para el boton play
         listenerPlay = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -109,11 +119,10 @@ public class SesionActivity extends AppCompatActivity {
             }
         };
 
-
+        //Recuperamos del intent el titulo de la actividad
         tvTitle.setText(getIntent().getStringExtra(Constantes.SESSION_EXTRA));
-        if (getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE).getString(Constantes.TIME_EXTRA,null)==null){
-            tvSessionTime.setText("40 min");
-        }
+
+        //Establecemos el tiempo
         tvSessionTime.setText(String.valueOf(getIntent().getIntExtra(Constantes.TIME_EXTRA,0)));
 
         bnPause.setOnClickListener(listenerPause);
@@ -121,19 +130,24 @@ public class SesionActivity extends AppCompatActivity {
         bnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Aumentamos el numero de sesiones
                 SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE);
                 SharedPreferences.Editor editor = prefs.edit();
                 int numSesiones = prefs.getInt(Constantes.PREF_SESSION_NUMBER,0);
                 editor.putInt(Constantes.PREF_SESSION_NUMBER,++numSesiones);
                 editor.apply();
+                //Guardamos los datos en el intent, y finalizamos
                 Intent result = new Intent();
                 result.putExtra(Constantes.DATA_EXTRA,datos);
                 setResult(Activity.RESULT_OK,result);
                 finish();
             }
         });
+
         cambios = new HashMap<>();
         BluetoothDevice dispositivo = getIntent().getParcelableExtra(Constantes.DEVICE_EXTRA);
+
+        //Declaro el BroadcastReceiver para los cambios de estado del bluetooth
         mBluetoothStateReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -154,6 +168,8 @@ public class SesionActivity extends AppCompatActivity {
                 }
             }
         };
+
+        //Declarao el BroadcastReceiver para los cambios de conexion del dispositivo
         mBluetoothDeviceStatusReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -162,13 +178,18 @@ public class SesionActivity extends AppCompatActivity {
                 }
             }
         };
+
+        //Obtengo dos preferencias, para poder comparar las antiguas con las nuevas
         defaultPreferences = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         oldPreferences = getSharedPreferences(Constantes.EP_HANDLE_OLD_PREFS,Context.MODE_PRIVATE);
         comparaPreferencias();
+
+        //Intento conectar con el dispositivo
         if (conectar(dispositivo)){
             try {
                 input = socket.getInputStream();
                 output = socket.getOutputStream();
+                //Si se conecta, le mando la nueva configuración
                 sendConfig();
             } catch (IOException e) {
                 Log.e(Constantes.TAG,"Ha habido un problema al establecer la comunicación con los Streams");
@@ -180,14 +201,20 @@ public class SesionActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         registerReceiver(mBluetoothStateReceiver, filter);
         IntentFilter filter2 = new IntentFilter(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        registerReceiver(mBluetoothDeviceStatusReceiver, filter);
+        registerReceiver(mBluetoothDeviceStatusReceiver, filter2);
 
+        //Comenzar a recibir datos
         recibirDatos();
+
+        //Asignar los listener
         swSound.setOnCheckedChangeListener(listener);
         swLight.setOnCheckedChangeListener(listener);
         swVib.setOnCheckedChangeListener(listener);
     }
 
+    /**
+     * Método que manda la configuración guardada al dispositivo
+     */
     private void sendConfig() {
         StringBuilder builder = new StringBuilder();
         if (cambios.containsKey(Constantes.TOGGLE_BUZZER))
@@ -196,6 +223,7 @@ public class SesionActivity extends AppCompatActivity {
             builder.append(Constantes.TOGGLE_LIGHT);
         if (cambios.containsKey(Constantes.TOGGLE_VIBRATION))
             builder.append(Constantes.TOGGLE_VIBRATION);
+        //A este le sumo 1000 porque el numero resultante debe tener 4 cifras
         if (cambios.containsKey(Constantes.SET_TONE))
             builder.append(""+Constantes.SET_TONE +
                     ((oldPreferences.getInt(Constantes.PREF_SOUND_VOLUME,1000))+1000)
@@ -209,6 +237,8 @@ public class SesionActivity extends AppCompatActivity {
                     (oldPreferences.getInt(Constantes.PREF_VIBR_INTENSITY, 49))
             );
         Log.d(Constantes.TAG,"Configuración enviada: " + builder.toString());
+
+        //Convertimos la string resultante a bytes
         byte[] data = builder.toString().getBytes();
         try {
             output.write(data);
@@ -239,6 +269,7 @@ public class SesionActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        //Cerramos todos los Streams
         try {
             if (output != null)
                 output.close();
@@ -249,6 +280,8 @@ public class SesionActivity extends AppCompatActivity {
             Log.d(Constantes.TAG,e.getMessage());
             e.printStackTrace();
         }
+
+        //Des-registramos los receivers
         if (mBluetoothStateReceiver.isOrderedBroadcast())
             unregisterReceiver(mBluetoothStateReceiver);
         if (mBluetoothDeviceStatusReceiver.isOrderedBroadcast())
@@ -275,6 +308,9 @@ public class SesionActivity extends AppCompatActivity {
             unregisterReceiver(mBluetoothDeviceStatusReceiver);
     }
 
+    /**
+     * Compara las prefencias nuevas con las antiguas, para ver cuáles han cambiado, y mandar sólo los cambios nuevos.
+     */
     private void comparaPreferencias() { //TODO Este método puede optimizarse, creando directamente aquí la string.
         SharedPreferences p = defaultPreferences;
         SharedPreferences o = oldPreferences;
@@ -309,6 +345,9 @@ public class SesionActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    /**
+     * Carga las preferencias por defecto
+     */
     private void cargaPreferenciasPorDefecto() {
         SharedPreferences.Editor editor = oldPreferences.edit();
         editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,false);
@@ -322,10 +361,14 @@ public class SesionActivity extends AppCompatActivity {
         editor.apply();
     }
 
+
+    /**
+     * Método encargado de recibir los datos y guardarlos en un MAP
+     */
     void recibirDatos()
     {
         final Handler handler = new Handler();
-        final byte delimiter = 42; //This is the ASCII code for a '*' character
+        final byte delimiter = 42; //Este es el código ASCII para el caracter '*'
 
         stopWorker = false;
         readBufferPosition = 0;

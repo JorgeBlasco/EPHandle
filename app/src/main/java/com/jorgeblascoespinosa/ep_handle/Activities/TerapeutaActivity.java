@@ -1,4 +1,4 @@
-package com.jorgeblascoespinosa.ep_handle;
+package com.jorgeblascoespinosa.ep_handle.Activities;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+
+import com.jorgeblascoespinosa.ep_handle.R;
 
 public class TerapeutaActivity extends AppCompatActivity {
 
@@ -21,6 +23,8 @@ public class TerapeutaActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         bnEmail = findViewById(R.id.bn_Email);
+
+        //Al pulsar sobre el botón email, nos abre un intent para enviar emails con nuestra aplicación prederminada
         bnEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

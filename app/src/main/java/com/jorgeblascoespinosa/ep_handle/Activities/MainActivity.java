@@ -1,4 +1,4 @@
-package com.jorgeblascoespinosa.ep_handle;
+package com.jorgeblascoespinosa.ep_handle.Activities;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -25,6 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.jorgeblascoespinosa.ep_handle.AccesoBD;
+import com.jorgeblascoespinosa.ep_handle.Constantes;
+import com.jorgeblascoespinosa.ep_handle.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private BroadcastReceiver mBluetoothStateReceiver;
     private BluetoothDevice dispositvo;
+    private BluetoothAdapter mBluetoothAdapter;
+
 
     private TextView tv_bluetoothState, tv_deviceName, tv_day, tv_totalSessions;
     private Spinner sp_sessionType;
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         relacionarViews();
         setSupportActionBar(mToolbar);
+
         //Guardamos la fecha de registro en las preferencias (sólo la primera vez que se inicia la app)
         SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         if (prefs.getString(Constantes.PREF_FECHA_REGISTRO, null) == null) {
@@ -72,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //Obtener el adaptador bluetooth
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null)
             btCompatible = false;
         else{
@@ -93,16 +99,25 @@ public class MainActivity extends AppCompatActivity {
      * @param savedInstanceState
      */
     private void actualizaUI(Bundle savedInstanceState) {
+
+        //Obtenemos el numero de sesiones realizadas
         SharedPreferences prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS,MODE_PRIVATE);
         int numSesiones = prefs.getInt(Constantes.PREF_SESSION_NUMBER,0);
         tv_totalSessions.setText(String.valueOf(numSesiones));
+
+        //Comprobamos el estado del bluetooth
         if (!btCompatible) {
             tv_bluetoothState.setText(getString(R.string.bluetooth_state_not_available));
             tv_bluetoothState.setTextColor(Color.RED);
         }else {
-            tv_bluetoothState.setText(getString(R.string.bluetooth_state_available));
-            tv_bluetoothState.setTextColor(Color.GREEN);
+            if (!mBluetoothAdapter.isEnabled())
+                tv_bluetoothState.setText(R.string.bluetooth_state_not_connected);
+            else {
+                tv_bluetoothState.setText(getString(R.string.bluetooth_state_available));
+                tv_bluetoothState.setTextColor(Color.GREEN);
+            }
         }
+        //Si tenemos un dispositivo bluetooth guardado, mostramos su nombre
         if (dispositvo != null) {
             tv_deviceName.setText(dispositvo.getName()==null?"Desconocido":dispositvo.getName());
             tv_bluetoothState.setText(getString(R.string.bluetooth_state_connected));
@@ -120,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         else
             tv_deviceName.setText(R.string.bluetooth_state_not_connected);
 
+        //Actualizamos el recuento de dias desde la fecha de registro
         String fecha = prefs.getString(Constantes.PREF_FECHA_REGISTRO,null);
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
         Date date;
@@ -354,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         } else {
-            Toast.makeText(this, "Pulsa otra vez para salir de la aplicacion.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Pulsa otra vez para salir de la aplicación.", Toast.LENGTH_SHORT).show();
             backButtonCount++;
         }
     }

@@ -1,4 +1,4 @@
-package com.jorgeblascoespinosa.ep_handle;
+package com.jorgeblascoespinosa.ep_handle.Activities;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +11,9 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+
+import com.jorgeblascoespinosa.ep_handle.Constantes;
+import com.jorgeblascoespinosa.ep_handle.R;
 
 public class PreferencesActivity extends AppCompatActivity {
 
@@ -26,18 +29,20 @@ public class PreferencesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preferences);
-        asignar();
+        asignarViews();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         cargaDatos();
         cargaListeners();
+
+        //Desactivamos los controles que actualmente están en desuso.
         cbVibracion.setEnabled(false);
         sbVibracion.setEnabled(false);
         sbBrillo.setEnabled(false);
     }
 
-    private void asignar() {
+    private void asignarViews() {
         prefs = getSharedPreferences(Constantes.EP_HANDLE_PREFS, Context.MODE_PRIVATE);
         toolbar = findViewById(R.id.toolbar_config);
         bnGuardar = findViewById(R.id.bn_pref_save);
@@ -51,7 +56,12 @@ public class PreferencesActivity extends AppCompatActivity {
         bn_reset = findViewById(R.id.bn_reset);
     }
 
+
+    /**
+     * Mueve los controles para que coincidan con las preferencias guardadas
+     */
     private void cargaDatos() {
+        //Si no existen prefencias, se crean las de por defecto
         if (prefs.getBoolean(Constantes.LOAD_DEFAULT_SETTINGS,true)){
             cargaPreferenciasPorDefecto();
         }
@@ -64,6 +74,9 @@ public class PreferencesActivity extends AppCompatActivity {
         cbNotificaciones.setChecked(prefs.getBoolean(Constantes.PREF_ENABLE_NOTIFICATIONS,true));
     }
 
+    /**
+     * Carga unas preferencias por defecto
+     */
     private void cargaPreferenciasPorDefecto() {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,false);
@@ -77,6 +90,9 @@ public class PreferencesActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    /**
+     * Guarda las preferencias tal y como están configuradas en los controles
+     */
     private void guardarDatos(){
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(Constantes.PREF_ENABLE_VIBRATION,cbVibracion.isChecked());
@@ -89,6 +105,9 @@ public class PreferencesActivity extends AppCompatActivity {
         editor.apply();
     }
 
+    /**
+     * Carga los listeners para todos los controles
+     */
     private void cargaListeners() {
         cbVibracion.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

@@ -76,4 +76,5 @@
     <string name="bn_session_pause">Pausar</string>
     <string name="bn_session_stop">Detener</string>
     <string name="bn_session_play">Continuar</string>
+    <string name="snackbar_device_not_compatible">Dispositivo no compatible</string>
 </resources>

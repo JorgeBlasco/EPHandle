@@ -15,30 +15,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name=".TerapeutaActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".Activities.TerapeutaActivity"
+            android:parentActivityName=".Activities.MainActivity">
         </activity>
         <activity
-            android:name=".SesionActivity"
-            android:parentActivityName=".MainActivity">
+            android:name=".Activities.SesionActivity"
+            android:parentActivityName=".Activities.MainActivity">
         </activity>
         <activity
-            android:name=".DispositivoActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Activities.DispositivoActivity"
+            android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".PreferencesActivity"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Activities.PreferencesActivity"
+            android:parentActivityName=".Activities.MainActivity" />
         <activity
-            android:name=".AcercaDeActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".LoginActivity">
+            android:name=".Activities.AcercaDeActivity"
+            android:parentActivityName=".Activities.MainActivity" />
+        <activity android:name=".Activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".Activities.MainActivity" />
     </application>
 
 </manifest>
